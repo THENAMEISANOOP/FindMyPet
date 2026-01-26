@@ -12,24 +12,45 @@ export const checkEmail = async (req: Request, res: Response) => {
 // Register new user
 export const registerUser = async (req: Request, res: Response) => {
   const { username, email, mobile, whatsapp } = req.body;
+
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ success: false, message: "Email already exists" });
+    // Check required fields
+    if (!username || !email || !mobile || !whatsapp)
+      return res.status(400).json({ success: false, message: "All fields required" });
 
-    const user = await User.create({ username, email, mobile, whatsapp });
+    // Validate Indian mobile number
+    const mobileRegex = /^[6-9]\d{9}$/;
+    if (!mobileRegex.test(mobile))
+      return res.status(400).json({ success: false, message: "Invalid mobile number" });
 
-    // Generate OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.otp = otp;
-    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
-    await user.save();
+    if (!mobileRegex.test(whatsapp))
+      return res.status(400).json({ success: false, message: "Invalid WhatsApp number" });
 
-    await sendEmail(email, "FindMyPet OTP", `Your OTP is: ${otp}`);
-    res.json({ success: true, message: "User registered and OTP sent" });
+    // Check email uniqueness
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail)
+      return res.status(400).json({ success: false, message: "Email already exists" });
+
+    // Check WhatsApp uniqueness
+    const existingWhatsapp = await User.findOne({ whatsapp });
+    if (existingWhatsapp)
+      return res.status(400).json({ success: false, message: "WhatsApp number already exists" });
+
+    // Check mobile uniqueness
+    const existingMobile = await User.findOne({ mobile });
+    if (existingMobile)
+      return res.status(400).json({ success: false, message: "Mobile number already exists" });
+
+    // Create user
+    await User.create({ username, email, mobile, whatsapp });
+
+    res.json({ success: true, message: "User registered successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error", error });
   }
 };
+
+
 
 // Send login OTP
 export const sendLoginOTP = async (req: Request, res: Response) => {
@@ -38,6 +59,7 @@ export const sendLoginOTP = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
 
+    // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
     user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
@@ -49,6 +71,7 @@ export const sendLoginOTP = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 // Verify OTP
 export const verifyOTP = async (req: Request, res: Response) => {

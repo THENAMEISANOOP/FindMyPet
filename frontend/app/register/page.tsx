@@ -12,12 +12,17 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: any) => {
     e.preventDefault();
-    if (!username || !email || !mobile || !whatsapp) return alert("All fields required");
+    if (!username || !email || !mobile || !whatsapp)
+      return alert("All fields required");
 
     try {
       const res = await api.post("/register", { username, email, mobile, whatsapp });
       alert(res.data.message);
-      if (res.data.success) router.push(`/verify-otp?email=${email}`);
+
+      if (res.data.success) {
+        // After successful registration, redirect to login page
+        router.push("/login");
+      }
     } catch (err: any) {
       alert(err.response?.data?.message || "Server error");
     }
@@ -25,15 +30,54 @@ export default function RegisterPage() {
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <form onSubmit={handleRegister} className="p-6 bg-white shadow-md rounded w-96 space-y-4">
+      <form
+        onSubmit={handleRegister}
+        className="p-6 bg-white shadow-md rounded w-96 space-y-4"
+      >
         <h2 className="text-xl font-bold">Register</h2>
-        <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} className="input w-full p-2 border rounded"/>
-        <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="input w-full p-2 border rounded"/>
-        <input placeholder="Mobile" value={mobile} onChange={e => setMobile(e.target.value)} className="input w-full p-2 border rounded"/>
-        <input placeholder="WhatsApp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className="input w-full p-2 border rounded"/>
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
-          Register & Send OTP
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          placeholder="Mobile"
+          value={mobile}
+          onChange={e => setMobile(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          placeholder="WhatsApp"
+          value={whatsapp}
+          onChange={e => setWhatsapp(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded"
+        >
+          Register
         </button>
+
+        {/* Already have account → Login */}
+        <p className="text-center mt-2">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
+            className="text-blue-500 underline"
+          >
+            Login Here
+          </button>
+        </p>
       </form>
     </div>
   );

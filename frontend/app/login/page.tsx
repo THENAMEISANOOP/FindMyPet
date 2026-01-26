@@ -3,10 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "../lib/api";
 
-
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [showRegisterBtn, setShowRegisterBtn] = useState(false);
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -16,12 +14,17 @@ export default function LoginPage() {
       // Check if email exists
       const checkRes = await api.post("/check-email", { email });
       if (checkRes.data.exists) {
+        // Store email in localStorage for OTP page
+        localStorage.setItem("otpEmail", email);
+
         // Send OTP
         await api.post("/login", { email });
         alert("OTP sent to email");
-        router.push(`/verify-otp?email=${email}`);
+
+        // Redirect to OTP page
+        router.push("/verify-otp");
       } else {
-        setShowRegisterBtn(true);
+        alert("Email not registered. Please register first.");
       }
     } catch (err: any) {
       alert(err.response?.data?.message || "Server error");
@@ -39,17 +42,23 @@ export default function LoginPage() {
           onChange={e => setEmail(e.target.value)}
           className="w-full p-2 border rounded"
         />
-        <button onClick={handleLogin} className="w-full bg-blue-500 text-white p-2 rounded">
+        <button
+          onClick={handleLogin}
+          className="w-full bg-blue-500 text-white p-2 rounded"
+        >
           Send OTP
         </button>
-        {showRegisterBtn && (
-          <p className="text-center mt-2">
-            New User?{" "}
-            <button onClick={() => router.push("/register")} className="text-blue-500 underline">
-              Register Here
-            </button>
-          </p>
-        )}
+
+        {/* New User Register Button */}
+        <p className="text-center mt-2">
+          New User?{" "}
+          <button
+            onClick={() => router.push("/register")}
+            className="text-blue-500 underline"
+          >
+            Register Here
+          </button>
+        </p>
       </div>
     </div>
   );
