@@ -73,23 +73,42 @@ export const sendLoginOTP = async (req: Request, res: Response) => {
 };
 
 
+
 // Verify OTP
 export const verifyOTP = async (req: Request, res: Response) => {
   const { email, otp } = req.body;
+
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
+    // Check OTP
     if (!user.otp || user.otp !== otp || user.otpExpires! < new Date()) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
+    // ✅ MAIN FIX
+    user.isVerified = true;
+
+    // cleanup
     user.otp = undefined;
     user.otpExpires = undefined;
+
     await user.save();
 
-    res.status(200).json({ message: "OTP verified", user });
+    res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
