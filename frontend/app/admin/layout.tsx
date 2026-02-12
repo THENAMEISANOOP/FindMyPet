@@ -1,23 +1,29 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import AdminSidebar from "@/app/components/admin/AdminSidebar";
 import { getAdminToken } from "@/app/lib/adminAuth";
 
-export default function AdminProtectedLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/admin/login";
   const token = getAdminToken();
 
   useEffect(() => {
-    if (!token) {
+    if (!isLoginPage && !token) {
       router.replace("/admin/login");
     }
-  }, [router, token]);
+
+    if (isLoginPage && token) {
+      router.replace("/admin/dashboard");
+    }
+  }, [isLoginPage, router, token]);
+
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
 
   if (!token) {
     return (
