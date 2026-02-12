@@ -4,7 +4,7 @@ import authRoutes from "./routes/authRoutes";
 import petRoutes from "./routes/petRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import publicRoutes from "./routes/publicRoutes";
-
+import adminRoutes from "./routes/adminRoutes";
 
 
 
@@ -15,6 +15,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/pet", petRoutes);
 app.use("/api/order",orderRoutes);
 app.use("/api/public", publicRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 
