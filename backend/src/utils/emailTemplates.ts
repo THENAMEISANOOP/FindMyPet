@@ -28,14 +28,4 @@ export const getOrderConfirmationEmail = (userName: string, orderDetails: { amou
   `;
 };
 
-export const getOrderConfirmationWhatsApp = (userName: string, item: string) => {
-  return `🎉 Hi ${userName}! 
 
-Congratulations on your purchase from *FindMyPet*! 🐾
-
-✅ *Order Confirmed*: ${item}
-🚚 *Delivery*: 3-5 Business Days
-
-Thank you for choosing us to keep your pet safe. 🛡️
-`;
-};

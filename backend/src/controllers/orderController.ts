@@ -6,8 +6,7 @@ import User from "../models/User.model";
 import Pet from "../models/Pet";
 import razorpay from "../utils/razorpay";
 import { sendEmail } from "../utils/sendEmail";
-import { sendWhatsApp } from "../utils/sendWhatsApp";
-import { getOrderConfirmationEmail, getOrderConfirmationWhatsApp } from "../utils/emailTemplates";
+import { getOrderConfirmationEmail } from "../utils/emailTemplates";
 
 
 //create
@@ -162,12 +161,6 @@ export const verifyPayment = async (req: Request, res: Response) => {
         const plainText = `Hi ${user.username}, Your order for ${order.type.replace("_", " ")} is confirmed. Amount: ${order.amount}.`;
         
         await sendEmail(user.email, "Order Confirmation - FindMyPet", plainText, emailContent);
-
-        // 2. Send WhatsApp
-        if (user.mobile) {
-           const waMessage = getOrderConfirmationWhatsApp(user.username, order.type.replace("_", " "));
-           await sendWhatsApp(user.mobile, waMessage);
-        }
       }
     } catch (notifyError) {
       console.error("Notification failed:", notifyError);
