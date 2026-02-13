@@ -5,6 +5,10 @@ import Order from "../models/Order";
 import User from "../models/User.model";
 import Pet from "../models/Pet";
 import razorpay from "../utils/razorpay";
+import { sendEmail } from "../utils/sendEmail";
+import { sendWhatsApp } from "../utils/sendWhatsApp";
+import { getOrderConfirmationEmail, getOrderConfirmationWhatsApp } from "../utils/emailTemplates";
+
 
 //create
 
@@ -144,6 +148,31 @@ export const verifyPayment = async (req: Request, res: Response) => {
     order.status = "PAID";
     order.razorpayPaymentId = razorpay_payment_id;
     await order.save();
+
+    // --- NOTIFICATIONS ---
+    try {
+      const user = await User.findById(order.userId);
+      if (user) {
+        // 1. Send Email
+        const emailContent = getOrderConfirmationEmail(user.username, {
+          amount: order.amount,
+          date: new Date().toLocaleDateString(),
+          items: order.type.replace("_", " ")
+        });
+        const plainText = `Hi ${user.username}, Your order for ${order.type.replace("_", " ")} is confirmed. Amount: ${order.amount}.`;
+        
+        await sendEmail(user.email, "Order Confirmation - FindMyPet", plainText, emailContent);
+
+        // 2. Send WhatsApp
+        if (user.mobile) {
+           const waMessage = getOrderConfirmationWhatsApp(user.username, order.type.replace("_", " "));
+           await sendWhatsApp(user.mobile, waMessage);
+        }
+      }
+    } catch (notifyError) {
+      console.error("Notification failed:", notifyError);
+      // Don't fail the request if notification fails
+    }
 
     res.json({
       success: true,
