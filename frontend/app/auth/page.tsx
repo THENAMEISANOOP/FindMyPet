@@ -112,7 +112,7 @@ export default function AuthPage() {
                 </button>
               </form>
               <div className="mt-6 text-center">
-                <p className="text-slate-500 text-sm">Don't have an account? <button onClick={() => setStep("register")} className="text-blue-600 font-bold hover:underline">Register</button></p>
+                <div className="text-slate-500 text-sm">Don't have an account? <button onClick={() => setStep("register")} className="text-blue-600 font-bold hover:underline">Register</button></div>
               </div>
             </motion.div>
           )}
@@ -147,7 +147,7 @@ export default function AuthPage() {
                 </button>
               </form>
               <div className="mt-6 text-center">
-                <p className="text-slate-500 text-sm">Already a user? <button onClick={() => setStep("email")} className="text-blue-600 font-bold hover:underline">Login</button></p>
+                <div className="text-slate-500 text-sm">Already a user? <button onClick={() => setStep("email")} className="text-blue-600 font-bold hover:underline">Login</button></div>
               </div>
             </motion.div>
           )}
