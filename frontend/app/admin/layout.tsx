@@ -9,32 +9,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login";
-  const [token, setToken] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const storedToken = getAdminToken();
-    setToken(storedToken);
-    setIsChecking(false);
-  }, []);
+    const checkAuth = () => {
+      const token = getAdminToken();
 
-  useEffect(() => {
-    if (!isChecking) {
-      if (!isLoginPage && !token) {
-        router.replace("/admin/login");
+      if (isLoginPage) {
+        if (token) {
+          router.replace("/admin/dashboard");
+        } else {
+          setIsChecking(false);
+        }
+      } else {
+        if (!token) {
+          router.replace("/admin/login");
+        } else {
+          setIsChecking(false);
+        }
       }
+    };
 
-      if (isLoginPage && token) {
-        router.replace("/admin/dashboard");
-      }
-    }
-  }, [isChecking, isLoginPage, router, token]);
+    checkAuth();
+  }, [isLoginPage, router]);
 
   if (isLoginPage) {
     return <>{children}</>;
   }
 
-  if ((!token && isChecking) || (!token && !isLoginPage)) {
+  if (isChecking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
         Checking admin session...
