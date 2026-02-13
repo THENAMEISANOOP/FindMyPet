@@ -98,17 +98,52 @@ export const verifyOTP = async (req: Request, res: Response) => {
 
     await user.save();
 
+
     res.status(200).json({
       success: true,
       message: "OTP verified successfully",
       user: {
         _id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        mobile: user.mobile,
+        whatsapp: user.whatsapp
       }
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+// Update User Profile
+export const updateProfile = async (req: Request, res: Response) => {
+  const { email, username, mobile, whatsapp } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    if (username) user.username = username;
+    if (mobile) user.mobile = mobile;
+    if (whatsapp) user.whatsapp = whatsapp;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        mobile: user.mobile,
+        whatsapp: user.whatsapp
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error });
+  }
+};
+
 

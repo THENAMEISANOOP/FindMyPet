@@ -15,6 +15,7 @@ export default function Navbar({ userName }: { userName: string }) {
   const navLinks = [
     { name: "My Pets", href: "/dashboard", icon: <PawPrint size={18} /> },
     { name: "My Orders", href: "/orders", icon: <ShoppingBag size={18} /> },
+    { name: "Profile", href: "/dashboard/profile", icon: <UserIcon size={18} /> },
   ];
 
   return (
