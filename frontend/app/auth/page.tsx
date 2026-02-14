@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Phone, User, MessageCircle, ArrowRight, Loader2 } from "lucide-react";
 import api from "../lib/api";
@@ -84,6 +84,62 @@ export default function AuthPage() {
     }
   };
 
+
+  // --- Timer Logic (New) ---
+  const [timer, setTimer] = useState(30);
+  const [canResend, setCanResend] = useState(false);
+
+  // Start timer when entering OTP step
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (step === "otp" && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [step, timer]);
+
+  // Reset timer when re-entering OTP step
+  useEffect(() => {
+    if (step === "otp") {
+       // Only reset if it was 0 or not running? Actually simplified: 
+       // If we want fresh timer every time we enter "otp" step from "email", we can resetting in the transition.
+       // But existing logic handles transition to "otp" in handleCheckEmail/handleRegister.
+       // Let's add a comprehensive reset function.
+    }
+  }, [step]);
+  
+  // Actually, better to reset timer when WE send the OTP.
+  // We can do this by coupling the setStep("otp") with setTimer(30).
+  // But since I can't easily change the other functions in this single replace block without touching too much code,
+  // I will use a useEffect that detects when step CHANGES to 'otp'.
+
+  useEffect(() => {
+      if(step === 'otp') {
+          setTimer(30);
+          setCanResend(false);
+      }
+  }, [step]);
+
+
+  const handleResendOTP = async () => {
+    setLoading(true);
+    try {
+      await api.post("/auth/login", { email: formData.email });
+      setTimer(30);
+      setCanResend(false);
+      setError(""); // clear any previous errors
+      // Optional: success message "OTP Resent!"
+    } catch (err: any) {
+      setError("Failed to resend OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
       <motion.div layout className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-slate-100">
@@ -152,8 +208,8 @@ export default function AuthPage() {
             </motion.div>
           )}
 
-          {/* OTP STEP */}
-          {step === "otp" && (
+           {/* OTP STEP */}
+           {step === "otp" && (
             <motion.div key="otp" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
               <p className="text-slate-500 mb-6 text-sm font-medium">Verification code sent to <br/><span className="text-slate-800 font-bold">{formData.email}</span></p>
               <form onSubmit={handleVerifyOTP}>
@@ -162,7 +218,18 @@ export default function AuthPage() {
                   {loading ? <Loader2 className="animate-spin" /> : "Verify OTP"}
                 </button>
               </form>
-              <button onClick={() => setStep("email")} className="text-blue-600 text-sm font-bold hover:underline">Edit Email</button>
+              
+              <div className="mt-4">
+                 {canResend ? (
+                     <button type="button" onClick={handleResendOTP} disabled={loading} className="text-blue-600 font-bold hover:underline">
+                        Resend OTP
+                     </button>
+                 ) : (
+                     <p className="text-slate-400 text-sm">Resend OTP in {timer}s</p>
+                 )}
+              </div>
+
+              <button onClick={() => setStep("email")} className="text-slate-500 text-sm font-medium hover:text-slate-800 mt-4 block mx-auto">Edit Email</button>
             </motion.div>
           )}
         </AnimatePresence>
