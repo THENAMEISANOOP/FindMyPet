@@ -11,6 +11,14 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        brand: {
+          beige: "#F5EFE6",
+          sand: "#E8D8C3",
+          charcoal: "#2F2F2F",
+          lime: "#C7F464",
+          teal: "#1B9AAA",
+          "teal-dark": "#137a7a", // Darker shade for hover
+        },
       },
     },
   },

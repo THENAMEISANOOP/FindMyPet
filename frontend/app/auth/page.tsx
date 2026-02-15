@@ -141,15 +141,22 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
-      <motion.div layout className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-slate-100">
+    <div className="min-h-screen bg-brand-beige flex items-center justify-center p-4 font-sans text-brand-charcoal relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-brand-sand/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-brand-teal/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+
+      <motion.div layout className="max-w-md w-full bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl p-8 border border-white/50 relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Pet Finder 🐾</h1>
-          <p className="text-slate-500 mt-2 font-medium">Fast & Secure Pet Recovery</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-teal rounded-2xl mb-4 shadow-lg shadow-brand-teal/30 rotate-3">
+             <span className="text-3xl">🐾</span>
+          </div>
+          <h1 className="text-3xl font-black text-brand-charcoal tracking-tight mb-2">PetFinder</h1>
+          <p className="text-brand-charcoal/60 font-medium">Fast & Secure Pet Recovery</p>
         </div>
 
         {error && (
-          <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm mb-6 text-center border border-red-100 font-semibold">
+          <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm mb-6 text-center border border-red-100 font-bold shadow-sm">
             {error}
           </motion.p>
         )}
@@ -157,53 +164,53 @@ export default function AuthPage() {
         <AnimatePresence mode="wait">
           {/* LOGIN STEP */}
           {step === "email" && (
-            <motion.div key="email" initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -15 }}>
+            <motion.div key="email" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
               <form onSubmit={handleCheckEmail} className="space-y-4">
-                <div className="relative">
-                  <Mail className="absolute left-4 top-4 text-slate-400" size={18} />
-                  <input required type="email" name="email" placeholder="Enter Email" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all" value={formData.email} onChange={handleChange} />
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/40 group-focus-within:text-brand-teal transition-colors" size={20} />
+                  <input required type="email" name="email" placeholder="Enter Email Address" className="w-full pl-12 pr-4 py-4 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-all placeholder:text-brand-charcoal/30 font-medium" value={formData.email} onChange={handleChange} />
                 </div>
-                <button disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 disabled:opacity-50">
-                  {loading ? <Loader2 className="animate-spin" /> : <>Continue <ArrowRight size={18} /></>}
+                <button disabled={loading} className="w-full bg-brand-teal hover:bg-brand-teal-dark text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-brand-teal/20 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100">
+                  {loading ? <Loader2 className="animate-spin" /> : <>Continue <ArrowRight size={20} /></>}
                 </button>
               </form>
-              <div className="mt-6 text-center">
-                <div className="text-slate-500 text-sm">Don't have an account? <button onClick={() => setStep("register")} className="text-blue-600 font-bold hover:underline">Register</button></div>
+              <div className="mt-8 text-center">
+                <div className="text-brand-charcoal/50 text-sm font-medium">New to PetFinder? <button onClick={() => setStep("register")} className="text-brand-teal font-black hover:underline ml-1">Create Account</button></div>
               </div>
             </motion.div>
           )}
 
           {/* REGISTER STEP */}
           {step === "register" && (
-            <motion.div key="register" initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -15 }}>
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="relative">
-                  <User className="absolute left-4 top-4 text-slate-400" size={18} />
-                  <input required name="username" placeholder="Full Name" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} />
+            <motion.div key="register" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <form onSubmit={handleRegister} className="space-y-3">
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/40 group-focus-within:text-brand-teal transition-colors" size={20} />
+                  <input required name="username" placeholder="Full Name" className="w-full pl-12 pr-4 py-3.5 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-all placeholder:text-brand-charcoal/30 font-medium" onChange={handleChange} />
                 </div>
                 
                 {/* EDITABLE EMAIL FIELD */}
-                <div className="relative">
-                  <Mail className="absolute left-4 top-4 text-slate-400" size={18} />
-                  <input required type="email" name="email" value={formData.email} placeholder="Email Address" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} />
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/40 group-focus-within:text-brand-teal transition-colors" size={20} />
+                  <input required type="email" name="email" value={formData.email} placeholder="Email Address" className="w-full pl-12 pr-4 py-3.5 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-all placeholder:text-brand-charcoal/30 font-medium" onChange={handleChange} />
                 </div>
 
-                <div className="relative">
-                  <Phone className="absolute left-4 top-4 text-slate-400" size={18} />
-                  <input required name="mobile" placeholder="Mobile Number" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} />
+                <div className="relative group">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/40 group-focus-within:text-brand-teal transition-colors" size={20} />
+                  <input required name="mobile" placeholder="Mobile Number" className="w-full pl-12 pr-4 py-3.5 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-all placeholder:text-brand-charcoal/30 font-medium" onChange={handleChange} />
                 </div>
 
-                <div className="relative">
-                  <MessageCircle className="absolute left-4 top-4 text-slate-400" size={18} />
-                  <input required name="whatsapp" placeholder="WhatsApp Number" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} />
+                <div className="relative group">
+                  <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/40 group-focus-within:text-brand-teal transition-colors" size={20} />
+                  <input required name="whatsapp" placeholder="WhatsApp Number" className="w-full pl-12 pr-4 py-3.5 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal transition-all placeholder:text-brand-charcoal/30 font-medium" onChange={handleChange} />
                 </div>
 
-                <button disabled={loading} className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex justify-center active:scale-95 disabled:opacity-50">
-                  {loading ? <Loader2 className="animate-spin" /> : "Sign Up"}
+                <button disabled={loading} className="w-full bg-brand-teal hover:bg-brand-teal-dark text-white font-bold py-4 rounded-2xl shadow-xl shadow-brand-teal/20 transition-all flex justify-center items-center gap-2 active:scale-95 disabled:opacity-50 mt-2">
+                  {loading ? <Loader2 className="animate-spin" /> : "Join Now"}
                 </button>
               </form>
               <div className="mt-6 text-center">
-                <div className="text-slate-500 text-sm">Already a user? <button onClick={() => setStep("email")} className="text-blue-600 font-bold hover:underline">Login</button></div>
+                <div className="text-brand-charcoal/50 text-sm font-medium">Already have an account? <button onClick={() => setStep("email")} className="text-brand-teal font-black hover:underline ml-1">Login</button></div>
               </div>
             </motion.div>
           )}
@@ -211,25 +218,29 @@ export default function AuthPage() {
            {/* OTP STEP */}
            {step === "otp" && (
             <motion.div key="otp" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-              <p className="text-slate-500 mb-6 text-sm font-medium">Verification code sent to <br/><span className="text-slate-800 font-bold">{formData.email}</span></p>
+              <div className="mb-6">
+                <p className="text-brand-charcoal/60 text-sm font-medium mb-1">Code sent onto</p>
+                <p className="text-brand-charcoal font-bold text-lg">{formData.email}</p>
+              </div>
+
               <form onSubmit={handleVerifyOTP}>
-                <input required maxLength={6} name="otp" placeholder="000000" className="w-full text-center text-3xl tracking-[0.5em] font-black py-5 bg-slate-50 border-2 border-slate-200 rounded-3xl outline-none focus:border-green-500 mb-4 transition-all" onChange={handleChange} />
-                <button disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex justify-center disabled:opacity-50">
-                  {loading ? <Loader2 className="animate-spin" /> : "Verify OTP"}
+                <input required maxLength={6} name="otp" placeholder="000000" className="w-full text-center text-4xl tracking-[0.4em] font-black py-6 bg-white border-2 border-brand-sand/50 rounded-3xl outline-none focus:border-brand-lime focus:ring-4 focus:ring-brand-lime/20 mb-6 transition-all text-brand-charcoal placeholder:text-brand-charcoal/10" onChange={handleChange} />
+                <button disabled={loading} className="w-full bg-brand-lime hover:bg-[#bce85b] text-brand-charcoal font-black py-4 rounded-2xl shadow-xl shadow-brand-lime/20 transition-all flex justify-center active:scale-95 disabled:opacity-50">
+                  {loading ? <Loader2 className="animate-spin" /> : "VERIFY & LOGIN"}
                 </button>
               </form>
               
-              <div className="mt-4">
+              <div className="mt-6">
                  {canResend ? (
-                     <button type="button" onClick={handleResendOTP} disabled={loading} className="text-blue-600 font-bold hover:underline">
+                     <button type="button" onClick={handleResendOTP} disabled={loading} className="text-brand-teal font-bold hover:underline">
                         Resend OTP
                      </button>
                  ) : (
-                     <p className="text-slate-400 text-sm">Resend OTP in {timer}s</p>
+                     <p className="text-brand-charcoal/40 text-sm font-medium">Resend OTP in <span className="text-brand-teal font-bold">{timer}s</span></p>
                  )}
               </div>
 
-              <button onClick={() => setStep("email")} className="text-slate-500 text-sm font-medium hover:text-slate-800 mt-4 block mx-auto">Edit Email</button>
+              <button onClick={() => setStep("email")} className="text-brand-charcoal/40 text-xs font-bold hover:text-brand-charcoal mt-8 uppercase tracking-wider transition-colors">Change Email</button>
             </motion.div>
           )}
         </AnimatePresence>

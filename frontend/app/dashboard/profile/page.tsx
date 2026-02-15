@@ -63,56 +63,62 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EFE6] text-[#2F2F2F]">
+    <div className="min-h-screen bg-brand-beige text-brand-charcoal font-sans">
       <Navbar userName={formData.username} />
 
-      <main className="max-w-2xl mx-auto p-6">
-        <div className="my-8">
-          <Link href="/dashboard" className="flex items-center gap-2 text-[#5C5C5C] hover:text-[#1B9AAA] transition-colors mb-4 font-bold text-sm">
-            <ChevronLeft size={16} /> Back to Dashboard
+      <main className="max-w-2xl mx-auto p-6 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))]">
+        <div className="my-10">
+          <Link href="/dashboard" className="inline-flex items-center gap-2 text-brand-charcoal/50 hover:text-brand-teal transition-colors mb-6 font-bold text-sm uppercase tracking-wider group">
+            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-black text-[#2F2F2F] tracking-tight">Edit Profile</h1>
+          <h1 className="text-4xl font-black text-brand-charcoal tracking-tight flex items-center gap-3">
+             <User className="text-brand-teal" size={32} />
+             Edit Profile
+          </h1>
         </div>
 
-        <div className="bg-white rounded-[2rem] p-8 border border-[#E6DCCD] shadow-lg shadow-teal-900/5">
+        <div className="bg-white rounded-[2.5rem] p-10 border border-brand-sand/50 shadow-xl shadow-brand-sand/10 relative overflow-hidden">
+          {/* Decor */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-teal/5 rounded-bl-[3rem]"></div>
+
           {success && (
-            <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl border border-green-100 font-medium text-center">
-              {success}
+            <div className="mb-8 p-4 bg-brand-lime/20 text-brand-charcoal rounded-2xl border border-brand-lime/30 font-bold text-center flex items-center justify-center gap-2 shadow-sm">
+              <span className="text-xl">🎉</span> {success}
             </div>
           )}
           
           {error && (
-            <div className="mb-6 p-4 bg-rose-50 text-rose-700 rounded-xl border border-rose-100 font-medium text-center">
+            <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 font-bold text-center">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
              {/* Email (Read Only) */}
              <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#A3A3A3] mb-2">Email Address</label>
+              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A3A3A3]" size={18} />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30" size={20} />
                 <input 
                   type="email"
                   value={formData.email}
                   readOnly
-                  className="w-full pl-12 pr-4 py-3 bg-[#F5EFE6]/50 border border-[#E6DCCD] rounded-xl text-[#5C5C5C] cursor-not-allowed"
+                  className="w-full pl-12 pr-4 py-4 bg-brand-beige/50 border border-brand-sand/50 rounded-2xl text-brand-charcoal/60 font-bold cursor-not-allowed"
                 />
               </div>
-              <p className="text-xs text-[#A3A3A3] mt-2 ml-1">Email cannot be changed.</p>
+              <p className="text-[10px] font-bold text-brand-charcoal/30 mt-2 ml-1 uppercase tracking-wide">Cannot be changed</p>
             </div>
 
             {/* Username */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#A3A3A3] mb-2">Full Name</label>
+              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">Full Name</label>
               <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A3A3A3] group-focus-within:text-[#1B9AAA] transition-colors" size={18} />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30 group-focus-within:text-brand-teal transition-colors" size={20} />
                 <input 
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-[#E6DCCD] rounded-xl outline-none focus:ring-2 focus:ring-[#1B9AAA] transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:font-medium placeholder:text-brand-charcoal/20 transition-all"
                   placeholder="Your Name"
                   required
                 />
@@ -121,14 +127,14 @@ export default function ProfilePage() {
 
             {/* Mobile */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#A3A3A3] mb-2">Mobile Number</label>
+              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">Mobile Number</label>
               <div className="relative group">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A3A3A3] group-focus-within:text-[#1B9AAA] transition-colors" size={18} />
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30 group-focus-within:text-brand-teal transition-colors" size={20} />
                 <input 
                   name="mobile"
                   value={formData.mobile}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-[#E6DCCD] rounded-xl outline-none focus:ring-2 focus:ring-[#1B9AAA] transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:font-medium placeholder:text-brand-charcoal/20 transition-all"
                   placeholder="Mobile Number"
                   required
                 />
@@ -137,14 +143,14 @@ export default function ProfilePage() {
 
             {/* WhatsApp */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#A3A3A3] mb-2">WhatsApp Number</label>
+              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">WhatsApp Number</label>
               <div className="relative group">
-                <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A3A3A3] group-focus-within:text-[#1B9AAA] transition-colors" size={18} />
+                <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30 group-focus-within:text-brand-teal transition-colors" size={20} />
                 <input 
                   name="whatsapp"
                   value={formData.whatsapp}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-[#E6DCCD] rounded-xl outline-none focus:ring-2 focus:ring-[#1B9AAA] transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:font-medium placeholder:text-brand-charcoal/20 transition-all"
                   placeholder="WhatsApp Number"
                   required
                 />
@@ -153,9 +159,9 @@ export default function ProfilePage() {
 
             <button 
               disabled={loading}
-              className="w-full bg-[#1B9AAA] hover:bg-teal-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-teal-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+              className="w-full bg-brand-teal hover:bg-brand-teal-dark text-white font-bold py-5 rounded-2xl shadow-xl shadow-brand-teal/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 mt-4 group"
             >
-              {loading ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Save Changes</>}
+              {loading ? <Loader2 className="animate-spin" /> : <><Save size={20} className="group-hover:scale-110 transition-transform" /> Save Changes</>}
             </button>
           </form>
         </div>

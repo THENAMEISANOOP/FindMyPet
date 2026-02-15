@@ -75,46 +75,59 @@ export default function MyOrders() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "PAID": return <CheckCircle2 className="text-green-500" size={18} />;
-      case "SHIPPED": return <Truck className="text-blue-500" size={18} />;
-      default: return <Clock className="text-amber-500" size={18} />;
+      case "PAID": return <CheckCircle2 className="text-brand-teal" size={20} />;
+      case "SHIPPED": return <Truck className="text-blue-500" size={20} />;
+      default: return <Clock className="text-amber-500" size={20} />;
     }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-blue-600" size={40} /></div>;
+  if (loading) return <div className="h-screen flex items-center justify-center bg-brand-beige"><Loader2 className="animate-spin text-brand-teal" size={48} /></div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-brand-beige text-brand-charcoal font-sans">
       <Navbar userName={user?.username} />
 
-      <main className="max-w-4xl mx-auto p-6">
-        <div className="my-8">
-          <Link href="/dashboard" className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors mb-4 font-bold text-sm">
-            <ChevronLeft size={16} /> Back to Dashboard
+      <main className="max-w-4xl mx-auto p-6 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))]">
+        <div className="my-10">
+          <Link href="/dashboard" className="inline-flex items-center gap-2 text-brand-charcoal/50 hover:text-brand-teal transition-colors mb-6 font-bold text-sm uppercase tracking-wider group">
+            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight">Order History</h1>
+          <h1 className="text-4xl font-black text-brand-charcoal tracking-tight flex items-center gap-3">
+            <ShoppingBag className="text-brand-teal" size={32} />
+            Order History
+          </h1>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {orders.length === 0 && (
+             <div className="text-center py-20 bg-white rounded-[2.5rem] border border-brand-sand/30 shadow-sm">
+                <Package size={64} className="text-brand-sand mx-auto mb-4" />
+                <p className="text-brand-charcoal/50 font-medium text-lg">No orders found yet.</p>
+             </div>
+          )}
+
           {orders.map((order: any) => (
-            <div key={order._id} className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div key={order._id} className="bg-white rounded-[2.5rem] p-8 border border-brand-sand/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-8 group">
               
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0">
-                  {order.petId?.photo ? <img src={order.petId.photo} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-300"><Package size={24} /></div>}
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 bg-brand-sand/20 rounded-2xl overflow-hidden flex-shrink-0 border border-brand-sand/30 group-hover:scale-105 transition-transform">
+                  {order.petId?.photo ? <img src={order.petId.photo} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-brand-sand"><Package size={32} /></div>}
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800">{order.type.replace("_", " ")}</h4>
-                  <p className="text-slate-500 text-sm">Pet: {order.petId?.name}</p>
+                  <h4 className="text-xl font-black text-brand-charcoal mb-1">{order.type.replace("_", " ")}</h4>
+                  <p className="text-brand-charcoal/50 font-medium text-sm">For Pet: <span className="text-brand-teal">{order.petId?.name}</span></p>
+                  <p className="text-brand-charcoal/30 text-xs font-bold mt-2 uppercase tracking-wider">ID: {order._id.slice(-6)}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-8 border-t md:border-t-0 border-brand-sand/20 pt-6 md:pt-0">
                 <div className="text-right">
-                  <p className="text-xl font-black text-slate-800">₹{order.amount}</p>
-                  <div className="flex items-center gap-1 mt-1 font-bold text-xs uppercase tracking-tight">
+                  <p className="text-2xl font-black text-brand-charcoal">₹{order.amount}</p>
+                  <div className={`flex items-center gap-1.5 mt-1 font-bold text-xs uppercase tracking-wider px-3 py-1 rounded-full w-fit ml-auto ${
+                      order.status === "PAID" ? "bg-brand-teal/10 text-brand-teal" : "bg-brand-sand/30 text-brand-charcoal/60"
+                  }`}>
                     {getStatusIcon(order.status)}
-                    <span className={order.status === "PAID" ? "text-green-600" : "text-amber-600"}>{order.status}</span>
+                    <span>{order.status}</span>
                   </div>
                 </div>
 
@@ -122,9 +135,9 @@ export default function MyOrders() {
                 {order.status === "CREATED" && (
                   <button 
                     onClick={() => handleRepay(order)}
-                    className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                    className="bg-brand-charcoal text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-black transition-all shadow-lg shadow-brand-charcoal/20 active:scale-95"
                   >
-                    <CreditCard size={16} /> Pay Now
+                    <CreditCard size={18} className="text-brand-lime" /> Pay Now
                   </button>
                 )}
               </div>

@@ -19,26 +19,26 @@ export default function Navbar({ userName }: { userName: string }) {
   ];
 
   return (
-    <nav className="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
+    <nav className="bg-brand-beige border-b border-brand-sand sticky top-0 z-40 shadow-sm backdrop-blur-md bg-opacity-90">
       <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2 group">
-          <div className="bg-blue-600 p-2 rounded-xl group-hover:rotate-12 transition-transform">
-            <PawPrint className="text-white" size={24} />
+        <Link href="/dashboard" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm group-hover:rotate-6 transition-transform">
+             <img src="/logo.jpg" alt="PetFinder Logo" className="object-cover w-full h-full" />
           </div>
-          <span className="text-xl font-black text-slate-800 tracking-tight hidden sm:block">PetFinder</span>
+          <span className="text-xl font-black text-brand-charcoal tracking-tight hidden sm:block">PetFinder</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="flex items-center gap-1 sm:gap-8">
+        <div className="flex items-center gap-1 sm:gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
                 pathname === link.href 
-                ? "bg-blue-50 text-blue-600" 
-                : "text-slate-500 hover:bg-slate-50 hover:text-blue-500"
+                ? "bg-brand-teal text-white shadow-lg shadow-brand-teal/20" 
+                : "text-brand-charcoal/60 hover:bg-white/50 hover:text-brand-teal"
               }`}
             >
               {link.icon}
@@ -51,23 +51,23 @@ export default function Navbar({ userName }: { userName: string }) {
         <div className="flex items-center gap-3">
           {userName ? (
             <>
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100">
-                 <UserIcon size={14} className="text-slate-400" />
-                 <span className="text-xs font-bold text-slate-700">{userName}</span>
+              <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-brand-sand shadow-sm">
+                 <UserIcon size={16} className="text-brand-teal" />
+                 <span className="text-xs font-bold text-brand-charcoal">{userName}</span>
               </div>
               
               <button
                 onClick={handleLogout}
-                className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-95"
+                className="p-2.5 text-red-400 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all active:scale-95"
                 title="Logout"
               >
-                <LogOut size={22} />
+                <LogOut size={20} />
               </button>
             </>
           ) : (
             <button
                onClick={() => router.push("/auth")}
-               className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all active:scale-95"
+               className="bg-brand-teal text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-brand-teal/20 hover:bg-brand-teal-dark transition-all active:scale-95"
             >
               Login
             </button>
