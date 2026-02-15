@@ -134,43 +134,43 @@ export default function Dashboard() {
       {/* 1. Integrated Navbar */}
       <Navbar userName={user?.username} />
 
-      <main className="max-w-6xl mx-auto p-6 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))]">
-        {/* New Page Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center my-12 gap-6">
-          <div className="space-y-2">
-            <h2 className="text-4xl font-black text-brand-charcoal tracking-tight">My Pets</h2>
-            <p className="text-brand-charcoal/60 font-medium text-lg">Manage your pets and their security tags</p>
+      <main className="max-w-7xl mx-auto px-6 py-8 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))]">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
+          <div className="space-y-1">
+            <h2 className="text-3xl font-black text-brand-charcoal tracking-tight">My Pets</h2>
+            <p className="text-brand-charcoal/50 font-medium">Manage your pets and their QR tags</p>
           </div>
           <button 
             onClick={() => { if(checkAuth()) setShowModal(true); }} 
-            className="bg-brand-teal text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 hover:bg-brand-teal-dark transition-all shadow-xl shadow-brand-teal/20 active:scale-95 w-full sm:w-auto justify-center group"
+            className="bg-brand-teal text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-brand-teal-dark transition-all shadow-lg shadow-brand-teal/20 active:scale-95 w-full sm:w-auto justify-center"
           >
-            <div className="bg-white/20 p-1 rounded-lg group-hover:rotate-90 transition-transform">
-              <Plus size={20} />
-            </div>
-             Add New Pet
+            <Plus size={18} />
+            Add New Pet
           </button>
         </div>
 
         {/* Pet Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {pets.map((pet: any) => (
-            <div key={pet._id} className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-brand-sand/50 hover:shadow-2xl hover:border-brand-teal/30 hover:-translate-y-2 transition-all duration-300 group">
-              <div className="h-64 bg-brand-sand/20 relative overflow-hidden">
+            <div key={pet._id} className="bg-white rounded-3xl overflow-hidden border border-brand-sand/40 hover:shadow-xl hover:border-brand-teal/20 hover:-translate-y-1 transition-all duration-300 group">
+              <div className="h-48 bg-gradient-to-br from-brand-sand/10 to-brand-beige/50 relative overflow-hidden">
                 {pet.photo ? (
-                  <img src={pet.photo} alt={pet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <img src={pet.photo} alt={pet.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-brand-sand"><PawPrint size={80} /></div>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <PawPrint size={48} className="text-brand-sand/50" />
+                  </div>
                 )}
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-brand-sand/30">
-                  <p className="text-xs font-black text-brand-teal uppercase tracking-wider">{pet.age} Years Old</p>
+                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-brand-sand/20">
+                  <p className="text-[10px] font-bold text-brand-teal uppercase tracking-wide">{pet.age} Years</p>
                 </div>
               </div>
               
-              <div className="p-8">
-                <h3 className="text-3xl font-black text-brand-charcoal mb-6">{pet.name}</h3>
+              <div className="p-5">
+                <h3 className="text-xl font-black text-brand-charcoal mb-4">{pet.name}</h3>
                 
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <button 
                     onClick={() => {
                        const win = window.open();
@@ -181,28 +181,28 @@ export default function Dashboard() {
                           <h1 style="margin-top:40px;color:#2F2F2F;font-weight:900;">Scan to find family of ${pet.name}</h1>
                        </div>`);
                     }}
-                    className="w-full bg-brand-sand/20 text-brand-charcoal py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-brand-sand/40 transition-all group/qr"
+                    className="w-full bg-brand-beige/50 text-brand-charcoal py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-brand-sand/30 transition-all group/qr"
                   >
-                    <QrCode size={20} className="text-brand-charcoal/50 group-hover/qr:text-brand-charcoal transition-colors" /> View QR Code
+                    <QrCode size={16} className="text-brand-charcoal/50 group-hover/qr:text-brand-teal transition-colors" /> View QR
                   </button>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <button 
                       onClick={() => handlePayment(pet._id, "QR_ONLY")}
-                      className="flex flex-col items-center justify-center p-4 border-2 border-brand-sand/30 hover:border-brand-teal hover:bg-brand-teal/5 rounded-2xl transition-all group/tag"
+                      className="flex flex-col items-center justify-center p-3 bg-brand-charcoal hover:bg-black rounded-xl transition-all shadow-lg shadow-brand-charcoal/10 group/belt"
                     >
-                      <ShoppingBag size={20} className="text-brand-teal mb-2 group-hover/tag:scale-110 transition-transform" />
-                      <span className="text-[10px] font-bold text-brand-charcoal/50 uppercase tracking-wider mb-1">QR Tag</span>
-                      <span className="text-lg font-black text-brand-charcoal">₹50</span>
+                      <ShoppingBag size={16} className="text-brand-lime mb-1 group-hover/tag:scale-110 transition-transform" />
+                      <span className="text-[9px] font-bold text-white/60 uppercase tracking-wide mb-0.5">QR Tag</span>
+                      <span className="text-sm font-black text-white">₹50</span>
                     </button>
 
                     <button 
                       onClick={() => handlePayment(pet._id, "QR_BELT")}
-                      className="flex flex-col items-center justify-center p-4 bg-brand-charcoal hover:bg-black rounded-2xl transition-all shadow-xl shadow-brand-charcoal/20 group/belt"
+                      className="flex flex-col items-center justify-center p-3 bg-brand-charcoal hover:bg-black rounded-xl transition-all shadow-lg shadow-brand-charcoal/10 group/belt"
                     >
-                      <CreditCard size={20} className="text-brand-lime mb-2 group-hover/belt:scale-110 transition-transform" />
-                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1">Premium Belt</span>
-                      <span className="text-lg font-black text-white">₹299</span>
+                      <CreditCard size={16} className="text-brand-lime mb-1 group-hover/belt:scale-110 transition-transform" />
+                      <span className="text-[9px] font-bold text-white/60 uppercase tracking-wide mb-0.5">Belt</span>
+                      <span className="text-sm font-black text-white">₹299</span>
                     </button>
                   </div>
                 </div>
@@ -210,18 +210,18 @@ export default function Dashboard() {
             </div>
           ))}
           
-          {/* Empty State / Add Pet Card */}
+          {/* Empty State */}
           {pets.length === 0 && !loading && (
              <button 
                 onClick={() => { if(checkAuth()) setShowModal(true); }}
-                className="bg-white rounded-[2.5rem] border-2 border-dashed border-brand-sand hover:border-brand-teal hover:bg-brand-teal/5 transition-all flex flex-col items-center justify-center gap-6 p-12 group min-h-[400px]"
+                className="bg-white rounded-3xl border-2 border-dashed border-brand-sand hover:border-brand-teal hover:bg-brand-teal/5 transition-all flex flex-col items-center justify-center gap-4 p-10 group min-h-[300px]"
              >
-                <div className="bg-brand-sand/20 p-6 rounded-full group-hover:scale-110 transition-transform duration-500">
-                   <Plus size={40} className="text-brand-sand group-hover:text-brand-teal transition-colors" />
+                <div className="bg-brand-sand/20 p-5 rounded-full group-hover:scale-110 transition-transform duration-500">
+                   <Plus size={32} className="text-brand-sand group-hover:text-brand-teal transition-colors" />
                 </div>
                 <div className="text-center">
-                   <h3 className="text-xl font-bold text-brand-charcoal mb-2">Add Your First Pet</h3>
-                   <p className="text-brand-charcoal/50 font-medium">Register a pet to generate a QR tag</p>
+                   <h3 className="text-lg font-bold text-brand-charcoal mb-1">Add Your First Pet</h3>
+                   <p className="text-sm text-brand-charcoal/50 font-medium">Register a pet to generate a QR tag</p>
                 </div>
              </button>
           )}
