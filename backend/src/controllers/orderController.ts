@@ -16,12 +16,12 @@ export const createOrder = async (req: Request, res: Response) => {
   try {
     const { userId, petId, type, shippingAddress, beltCustomization } = req.body;
 
-    if (!userId || !petId || !type || !shippingAddress) {
-      return res.status(400).json({ message: "Missing required fields (including address)" });
+    if (!userId || !petId || !type) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    if (type === "QR_BELT" && !beltCustomization) {
-      return res.status(400).json({ message: "Belt customization is required for QR_BELT orders" });
+    if (type === "QR_BELT" && (!shippingAddress || !beltCustomization)) {
+      return res.status(400).json({ message: "Shipping address and belt customization are required for QR_BELT orders" });
     }
 
     if (
@@ -177,7 +177,10 @@ export const verifyPayment = async (req: Request, res: Response) => {
         const emailContent = getOrderConfirmationEmail(user.username, {
           amount: order.amount,
           date: new Date().toLocaleDateString(),
-          items: order.type.replace("_", " ")
+          items: order.type.replace("_", " "),
+          type: order.type,
+          shippingAddress: order.shippingAddress as any,
+          beltCustomization: order.beltCustomization as any
         });
         const plainText = `Hi ${user.username}, Your order for ${order.type.replace("_", " ")} is confirmed. Amount: ${order.amount}.`;
         

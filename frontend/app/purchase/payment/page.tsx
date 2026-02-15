@@ -32,7 +32,7 @@ export default function PaymentPage() {
       const shippingAddress = JSON.parse(sessionStorage.getItem("purchase_address") || "{}");
       const beltCustomization = JSON.parse(sessionStorage.getItem("purchase_customization") || "null");
 
-      if (!shippingAddress.street) {
+      if (type === "QR_BELT" && !shippingAddress.street) {
         setAlert({ message: "Shipping address missing. Going back.", type: "error" });
         setTimeout(() => router.push(`/purchase/address?petId=${petId}&type=${type}`), 2000);
         return;

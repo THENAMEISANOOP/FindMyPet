@@ -118,26 +118,28 @@ export default function SuccessPage() {
                     <p className="font-bold text-brand-charcoal/80">
                       {type === "QR_BELT" 
                         ? "We'll prepare your customized belt and ship it within 2-3 business days." 
-                        : "Your physical QR tag will be shipped to your address."}
+                        : "Your digital QR code is ready! Print it or save it for instant use."}
                     </p>
                   </li>
-                  <li className="flex items-start gap-4">
-                    <div className="h-6 w-6 bg-brand-teal text-white rounded-full flex items-center justify-center text-xs font-bold mt-1 shrink-0">3</div>
-                    <p className="font-bold text-brand-charcoal/80">Track your order status anytime from your orders page.</p>
-                  </li>
+                  {type === "QR_BELT" && (
+                    <li className="flex items-start gap-4">
+                      <div className="h-6 w-6 bg-brand-teal text-white rounded-full flex items-center justify-center text-xs font-bold mt-1 shrink-0">3</div>
+                      <p className="font-bold text-brand-charcoal/80">Track your package delivery status from your orders page.</p>
+                    </li>
+                  )}
                 </ul>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <button 
                   onClick={() => router.push("/dashboard")}
-                  className="flex-1 flex items-center justify-center gap-2 bg-brand-beige border border-brand-sand p-4 rounded-xl font-bold hover:bg-brand-sand/50 transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 bg-brand-beige border border-brand-sand p-4 rounded-xl font-bold hover:bg-brand-sand/50 transition-all font-black text-sm uppercase tracking-wide"
                 >
                   <Home size={18} /> Dashboard
                 </button>
                 <button 
                   onClick={() => router.push("/orders")}
-                  className="flex-1 flex items-center justify-center gap-2 bg-brand-teal/10 text-brand-teal p-4 rounded-xl font-bold hover:bg-brand-teal/20 transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 bg-brand-teal/10 text-brand-teal p-4 rounded-xl font-bold hover:bg-brand-teal/20 transition-all font-black text-sm uppercase tracking-wide"
                 >
                   <ShoppingBag size={18} /> My Orders
                 </button>

@@ -129,6 +129,16 @@ export default function MyOrders() {
                 <div>
                   <h4 className="text-xl font-black text-brand-charcoal mb-1">{order.type.replace("_", " ")}</h4>
                   <p className="text-brand-charcoal/50 font-medium text-sm">For Pet: <span className="text-brand-teal">{order.petId?.name}</span></p>
+                  {order.type === "QR_BELT" && order.beltCustomization && (
+                    <div className="flex gap-2 mt-2">
+                       <span className="text-[10px] font-black uppercase tracking-wider bg-brand-sand/30 px-2 py-0.5 rounded text-brand-charcoal/60">
+                        Color: {order.beltCustomization.color}
+                       </span>
+                       <span className="text-[10px] font-black uppercase tracking-wider bg-brand-sand/30 px-2 py-0.5 rounded text-brand-charcoal/60">
+                        Style: {order.beltCustomization.style}
+                       </span>
+                    </div>
+                  )}
                   <p className="text-brand-charcoal/30 text-xs font-bold mt-2 uppercase tracking-wider">ID: {order._id.slice(-6)}</p>
                 </div>
               </div>

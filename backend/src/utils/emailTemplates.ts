@@ -1,4 +1,13 @@
-export const getOrderConfirmationEmail = (userName: string, orderDetails: { amount: number, date: string, items: string }) => {
+export const getOrderConfirmationEmail = (userName: string, orderDetails: { 
+  amount: number, 
+  date: string, 
+  items: string,
+  type: string,
+  shippingAddress?: { street: string, city: string, state: string, zip: string },
+  beltCustomization?: { color: string, style: string }
+}) => {
+  const isBelt = orderDetails.type === "QR_BELT";
+  
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
       <div style="text-align: center; margin-bottom: 20px;">
@@ -15,9 +24,21 @@ export const getOrderConfirmationEmail = (userName: string, orderDetails: { amou
           <li><strong>Item:</strong> ${orderDetails.items}</li>
           <li><strong>Amount Paid:</strong> ₹${orderDetails.amount}</li>
           <li><strong>Date:</strong> ${orderDetails.date}</li>
+          ${isBelt && orderDetails.beltCustomization ? `
+            <li><strong>Belt Color:</strong> ${orderDetails.beltCustomization.color}</li>
+            <li><strong>Belt Style:</strong> ${orderDetails.beltCustomization.style}</li>
+          ` : ''}
         </ul>
         
-        <p style="color: #5C5C5C;">Expected Delivery: <strong>3-5 Business Days</strong></p>
+        ${isBelt && orderDetails.shippingAddress ? `
+          <p style="color: #5C5C5C; border-top: 1px solid #ddd; pt-4 mt-4"><strong>Shipping Address:</strong><br/>
+          ${orderDetails.shippingAddress.street}, ${orderDetails.shippingAddress.city},<br/>
+          ${orderDetails.shippingAddress.state} - ${orderDetails.shippingAddress.zip}</p>
+          
+          <p style="color: #1B9AAA; font-weight: bold;">Expected Delivery: 2-3 Business Days</p>
+        ` : `
+          <p style="color: #22C55E; font-weight: bold;">Your digital QR code is now available in your dashboard for instant download!</p>
+        `}
       </div>
 
       <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #999;">

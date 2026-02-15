@@ -123,7 +123,7 @@ export default function Dashboard() {
                 
                   <div className="grid grid-cols-2 gap-2">
                     <button 
-                      onClick={() => router.push(`/purchase/address?petId=${pet._id}&type=QR_ONLY`)}
+                      onClick={() => router.push(`/purchase/payment?petId=${pet._id}&type=QR_ONLY`)}
                       className="flex flex-col items-center justify-center p-3 bg-brand-charcoal hover:bg-black rounded-xl transition-all shadow-lg shadow-brand-charcoal/10 group/belt"
                     >
                       <ShoppingBag size={16} className="text-brand-lime mb-1 group-hover/tag:scale-110 transition-transform" />
