@@ -47,7 +47,8 @@ export const createPet = async (req: any, res: any) => {
       pet
     });
   } catch (error) {
-    res.status(500).json({ message: "Pet creation failed" });
+    console.error("Pet creation error:", error);
+    res.status(500).json({ message: "Pet creation failed", error: error instanceof Error ? error.message : "Unknown error" });
   }
 };
 
