@@ -47,57 +47,6 @@ export default function Dashboard() {
     }
   };
 
-  const handlePayment = async (petId: string, type: "QR_ONLY" | "QR_BELT") => {
-    if (!checkAuth()) return;
-
-    try {
-      const { data } = await api.post("/order/create", {
-        userId: user._id,
-        petId,
-        type
-      });
-
-      const { razorpayOrder, order } = data;
-
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY, 
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency,
-        name: "Pet Finder 🐾",
-        description: `Order: ${type.replace("_", " ")}`,
-        order_id: razorpayOrder.id,
-        handler: async (response: any) => {
-          try {
-            const verifyRes = await api.post("/order/verify-payment", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              orderId: order._id
-            });
-
-            if (verifyRes.data.success) {
-              setAlert({ message: "🎉 Payment Successful! Your order has been placed.", type: "success" });
-              setTimeout(() => router.push("/orders"), 2000);
-            }
-          } catch (err) {
-            setAlert({ message: "Payment verification failed.", type: "error" });
-          }
-        },
-        prefill: {
-          name: user.username,
-          email: user.email,
-          contact: user.mobile
-        },
-        theme: { color: "#2563eb" }
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
-
-    } catch (error: any) {
-      setAlert({ message: error.response?.data?.message || "Order initiation failed", type: "error" });
-    }
-  };
 
   const handleCreatePet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,25 +121,9 @@ export default function Dashboard() {
               <div className="p-5">
                 <h3 className="text-xl font-black text-brand-charcoal mb-4">{pet.name}</h3>
                 
-                <div className="space-y-2">
-                  <button 
-                    onClick={() => {
-                       const win = window.open();
-                       win?.document.write(`<div style="display:flex;flex-direction:column;align-items:center;font-family:sans-serif;padding:40px;background:#F5EFE6;height:100vh;justify-content:center;">
-                          <div style="background:white;padding:20px;border-radius:30px;box-shadow:0 20px 50px rgba(0,0,0,0.1);">
-                            <img src="${pet.qrCode}" style="width:300px;border-radius:20px;"/>
-                          </div>
-                          <h1 style="margin-top:40px;color:#2F2F2F;font-weight:900;">Scan to find family of ${pet.name}</h1>
-                       </div>`);
-                    }}
-                    className="w-full bg-brand-beige/50 text-brand-charcoal py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-brand-sand/30 transition-all group/qr"
-                  >
-                    <QrCode size={16} className="text-brand-charcoal/50 group-hover/qr:text-brand-teal transition-colors" /> View QR
-                  </button>
-
                   <div className="grid grid-cols-2 gap-2">
                     <button 
-                      onClick={() => handlePayment(pet._id, "QR_ONLY")}
+                      onClick={() => router.push(`/purchase/address?petId=${pet._id}&type=QR_ONLY`)}
                       className="flex flex-col items-center justify-center p-3 bg-brand-charcoal hover:bg-black rounded-xl transition-all shadow-lg shadow-brand-charcoal/10 group/belt"
                     >
                       <ShoppingBag size={16} className="text-brand-lime mb-1 group-hover/tag:scale-110 transition-transform" />
@@ -199,14 +132,13 @@ export default function Dashboard() {
                     </button>
 
                     <button 
-                      onClick={() => handlePayment(pet._id, "QR_BELT")}
+                      onClick={() => router.push(`/purchase/address?petId=${pet._id}&type=QR_BELT`)}
                       className="flex flex-col items-center justify-center p-3 bg-brand-charcoal hover:bg-black rounded-xl transition-all shadow-lg shadow-brand-charcoal/10 group/belt"
                     >
                       <CreditCard size={16} className="text-brand-lime mb-1 group-hover/belt:scale-110 transition-transform" />
                       <span className="text-[9px] font-bold text-white/60 uppercase tracking-wide mb-0.5">Belt</span>
                       <span className="text-sm font-black text-white">₹299</span>
                     </button>
-                  </div>
                 </div>
               </div>
             </div>

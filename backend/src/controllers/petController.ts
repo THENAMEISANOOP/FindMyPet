@@ -33,15 +33,6 @@ export const createPet = async (req: any, res: any) => {
       ownerWhatsapp: user.whatsapp
     });
 
-    // 3️⃣ Generate QR with real petId
-    const qrCode = await QRCode.toDataURL(
-      `${process.env.CLIENT_URL}/scan/${pet._id}`
-    );
-
-    // 4️⃣ Save QR to pet
-    pet.qrCode = qrCode;
-    await pet.save();
-
     res.json({
       success: true,
       pet

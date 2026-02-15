@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, ShoppingBag, Package, CheckCircle2, Clock, Truck, ChevronLeft, CreditCard } from "lucide-react";
+import { Loader2, ShoppingBag, Package, CheckCircle2, Clock, Truck, ChevronLeft, CreditCard, Download } from "lucide-react";
 import api from "../lib/api";
 import Navbar from "../components/Navbar";
+import CustomAlert from "../components/CustomAlert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -11,18 +12,19 @@ export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [alert, setAlert] = useState<{ message: string | null; type: "success" | "error" | "info" }>({ message: null, type: "info" });
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
-      alert("Please login to access this feature");
-      router.push("/auth");
+      setAlert({ message: "Please login to access this feature", type: "info" });
+      setTimeout(() => router.push("/auth"), 1500);
       return;
     }
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
     fetchOrders(parsedUser._id);
-  }, []);
+  }, [router]);
 
   const fetchOrders = async (userId: string) => {
     try {
@@ -35,11 +37,21 @@ export default function MyOrders() {
     }
   };
 
+  const downloadQR = (order: any) => {
+    if (!order.petId?.qrCode) return;
+    const link = document.createElement("a");
+    link.href = order.petId.qrCode;
+    link.download = `${order.petId.name}_QR_Finder.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // --- REPAYMENT LOGIC ---
   const handleRepay = async (order: any) => {
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-      amount: order.amount * 100, // Backend stores Rupees, Razorpay needs Paise
+      amount: order.amount * 100, 
       currency: "INR",
       name: "Pet Finder 🐾",
       description: `Repayment for ${order.type.replace("_", " ")}`,
@@ -54,11 +66,11 @@ export default function MyOrders() {
           });
 
           if (verifyRes.data.success) {
-            alert("🎉 Payment Successful!");
-            fetchOrders(user._id); // Refresh list to show 'PAID'
+            setAlert({ message: "🎉 Payment Successful!", type: "success" });
+            fetchOrders(user._id); 
           }
         } catch (err) {
-          alert("Verification failed.");
+          setAlert({ message: "Verification failed.", type: "error" });
         }
       },
       prefill: {
@@ -85,6 +97,7 @@ export default function MyOrders() {
 
   return (
     <div className="min-h-screen bg-brand-beige text-brand-charcoal font-sans">
+      <CustomAlert message={alert.message} type={alert.type} onClose={() => setAlert({ ...alert, message: null })} />
       <Navbar userName={user?.username} />
 
       <main className="max-w-4xl mx-auto p-6 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))]">
@@ -131,15 +144,27 @@ export default function MyOrders() {
                   </div>
                 </div>
 
-                {/* --- THE REPAYMENT BUTTON --- */}
-                {order.status === "CREATED" && (
-                  <button 
-                    onClick={() => handleRepay(order)}
-                    className="bg-brand-charcoal text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-black transition-all shadow-lg shadow-brand-charcoal/20 active:scale-95"
-                  >
-                    <CreditCard size={18} className="text-brand-lime" /> Pay Now
-                  </button>
-                )}
+                <div className="flex flex-col gap-2">
+                  {/* --- THE REPAYMENT BUTTON --- */}
+                  {order.status === "CREATED" && (
+                    <button 
+                      onClick={() => handleRepay(order)}
+                      className="bg-brand-charcoal text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-black transition-all shadow-lg shadow-brand-charcoal/20 active:scale-95"
+                    >
+                      <CreditCard size={18} className="text-brand-lime" /> Pay Now
+                    </button>
+                  )}
+
+                  {/* --- DOWNLOAD QR BUTTON --- */}
+                  {order.status === "PAID" && order.petId?.qrCode && (
+                    <button 
+                      onClick={() => downloadQR(order)}
+                      className="bg-brand-teal text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-brand-teal-dark transition-all shadow-lg active:scale-95"
+                    >
+                      <Download size={18} /> Download QR
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

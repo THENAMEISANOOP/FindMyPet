@@ -7,16 +7,21 @@ import Pet from "../models/Pet";
 import razorpay from "../utils/razorpay";
 import { sendEmail } from "../utils/sendEmail";
 import { getOrderConfirmationEmail } from "../utils/emailTemplates";
+import QRCode from "qrcode";
 
 
 //create
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const { userId, petId, type } = req.body;
+    const { userId, petId, type, shippingAddress, beltCustomization } = req.body;
 
-    if (!userId || !petId || !type) {
-      return res.status(400).json({ message: "Missing fields" });
+    if (!userId || !petId || !type || !shippingAddress) {
+      return res.status(400).json({ message: "Missing required fields (including address)" });
+    }
+
+    if (type === "QR_BELT" && !beltCustomization) {
+      return res.status(400).json({ message: "Belt customization is required for QR_BELT orders" });
     }
 
     if (
@@ -62,7 +67,9 @@ export const createOrder = async (req: Request, res: Response) => {
       type,
       amount: amountInRupees,
       razorpayOrderId: razorpayOrder.id,
-      status: "CREATED"
+      status: "CREATED",
+      shippingAddress,
+      beltCustomization
     });
 
     res.json({
@@ -147,6 +154,20 @@ export const verifyPayment = async (req: Request, res: Response) => {
     order.status = "PAID";
     order.razorpayPaymentId = razorpay_payment_id;
     await order.save();
+
+    // 🏆 GENERATE QR CODE for the pet
+    try {
+      const pet = await Pet.findById(order.petId);
+      if (pet) {
+        const qrCode = await QRCode.toDataURL(
+          `${process.env.CLIENT_URL}/scan/${pet._id}`
+        );
+        pet.qrCode = qrCode;
+        await pet.save();
+      }
+    } catch (qrError) {
+      console.error("QR Generation failed:", qrError);
+    }
 
     // --- NOTIFICATIONS ---
     try {

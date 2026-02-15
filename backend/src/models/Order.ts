@@ -35,9 +35,18 @@ const orderSchema = new mongoose.Schema(
     razorpayOrderId: {
       type: String
     },
-
     razorpayPaymentId: {
       type: String
+    },
+    shippingAddress: {
+      street: String,
+      city: String,
+      state: String,
+      zip: String
+    },
+    beltCustomization: {
+      color: String,
+      style: String
     }
   },
   { timestamps: true }
