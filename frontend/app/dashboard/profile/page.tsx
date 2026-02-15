@@ -6,12 +6,14 @@ import { Loader2, User, Phone, MessageCircle, Mail, Save, ChevronLeft } from "lu
 import Link from "next/link";
 import api from "../../lib/api";
 import Navbar from "../../components/Navbar";
+import CustomAlert from "../../components/CustomAlert";
 
 export default function ProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [alert, setAlert] = useState<{ message: string | null; type: "success" | "error" | "info" }>({ message: null, type: "info" });
   
   const [formData, setFormData] = useState({
     username: "",
@@ -23,8 +25,8 @@ export default function ProfilePage() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
-      alert("Please login to access this feature");
-      router.push("/auth");
+      setAlert({ message: "Please login to access this feature", type: "info" });
+      setTimeout(() => router.push("/auth"), 1500);
       return;
     }
     const user = JSON.parse(storedUser);
@@ -64,6 +66,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-brand-beige text-brand-charcoal font-sans">
+      <CustomAlert message={alert.message} type={alert.type} onClose={() => setAlert({ ...alert, message: null })} />
       <Navbar userName={formData.username} />
 
       <main className="max-w-2xl mx-auto p-6 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))]">

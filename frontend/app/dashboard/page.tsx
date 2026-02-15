@@ -29,8 +29,8 @@ export default function Dashboard() {
 
   const checkAuth = () => {
     if (!user) {
-      alert("Please login to access this feature");
-      router.push("/auth");
+      setAlert({ message: "Please login to access this feature", type: "info" });
+      setTimeout(() => router.push("/auth"), 1500);
       return false;
     }
     return true;
@@ -76,10 +76,11 @@ export default function Dashboard() {
             });
 
             if (verifyRes.data.success) {
-              alert("🎉 Payment Successful! Your order has been placed.");
+              setAlert({ message: "🎉 Payment Successful! Your order has been placed.", type: "success" });
+              setTimeout(() => router.push("/orders"), 2000);
             }
           } catch (err) {
-            alert("Payment verification failed.");
+            setAlert({ message: "Payment verification failed.", type: "error" });
           }
         },
         prefill: {
@@ -94,7 +95,7 @@ export default function Dashboard() {
       rzp.open();
 
     } catch (error: any) {
-      alert(error.response?.data?.message || "Order initiation failed");
+      setAlert({ message: error.response?.data?.message || "Order initiation failed", type: "error" });
     }
   };
 
@@ -114,6 +115,7 @@ export default function Dashboard() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setShowModal(false);
+      setAlert({ message: `🐾 ${petData.name} has been registered successfully!`, type: "success" });
       fetchPets(user._id);
     } catch (err) {
       setAlert({ message: "Failed to create pet", type: "error" });
