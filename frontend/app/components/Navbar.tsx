@@ -49,18 +49,29 @@ export default function Navbar({ userName }: { userName: string }) {
 
         {/* User Profile & Logout */}
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100">
-            <UserIcon size={14} className="text-slate-400" />
-            <span className="text-xs font-bold text-slate-700">{userName}</span>
-          </div>
-          
-          <button
-            onClick={handleLogout}
-            className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-95"
-            title="Logout"
-          >
-            <LogOut size={22} />
-          </button>
+          {userName ? (
+            <>
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100">
+                 <UserIcon size={14} className="text-slate-400" />
+                 <span className="text-xs font-bold text-slate-700">{userName}</span>
+              </div>
+              
+              <button
+                onClick={handleLogout}
+                className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-95"
+                title="Logout"
+              >
+                <LogOut size={22} />
+              </button>
+            </>
+          ) : (
+            <button
+               onClick={() => router.push("/auth")}
+               className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition-all active:scale-95"
+            >
+              Login
+            </button>
+          )}
         </div>
       </div>
     </nav>

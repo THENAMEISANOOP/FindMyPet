@@ -23,6 +23,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
+      alert("Please login to access this feature");
       router.push("/auth");
       return;
     }

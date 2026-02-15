@@ -17,14 +17,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      router.push("/auth");
-      return;
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      fetchPets(parsedUser._id);
     }
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
-    fetchPets(parsedUser._id);
+    setLoading(false);
   }, []);
+
+  const checkAuth = () => {
+    if (!user) {
+      alert("Please login to access this feature");
+      router.push("/auth");
+      return false;
+    }
+    return true;
+  };
 
   const fetchPets = async (userId: string) => {
     try {
@@ -38,6 +46,8 @@ export default function Dashboard() {
   };
 
   const handlePayment = async (petId: string, type: "QR_ONLY" | "QR_BELT") => {
+    if (!checkAuth()) return;
+
     try {
       const { data } = await api.post("/order/create", {
         userId: user._id,
@@ -88,6 +98,8 @@ export default function Dashboard() {
 
   const handleCreatePet = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkAuth()) return;
+
     setUploading(true);
     const formData = new FormData();
     formData.append("userId", user._id);
@@ -127,7 +139,7 @@ export default function Dashboard() {
             <p className="text-slate-500 font-medium">Manage your pets and their security tags</p>
           </div>
           <button 
-            onClick={() => setShowModal(true)} 
+            onClick={() => { if(checkAuth()) setShowModal(true); }} 
             className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-95 w-full sm:w-auto justify-center"
           >
             <Plus size={20} /> Add New Pet

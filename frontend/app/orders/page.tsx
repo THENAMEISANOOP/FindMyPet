@@ -15,6 +15,7 @@ export default function MyOrders() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
+      alert("Please login to access this feature");
       router.push("/auth");
       return;
     }
