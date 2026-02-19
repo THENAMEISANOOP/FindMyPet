@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, ShieldCheck, CreditCard, ChevronLeft } from "lucide-react";
+import { Loader2, ShieldCheck, CreditCard, ChevronLeft, MapPin, Plus, Check } from "lucide-react";
 import api from "@/app/lib/api";
 import Navbar from "@/app/components/Navbar";
 import CustomAlert from "@/app/components/CustomAlert";
@@ -17,25 +17,70 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ message: string | null; type: "success" | "error" | "info" }>({ message: null, type: "info" });
 
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    zip: ""
+  });
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       router.push("/auth");
       return;
     }
-    setUser(JSON.parse(storedUser));
-    setLoading(false);
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+    fetchSavedAddresses(parsedUser._id);
   }, [router]);
+
+  const fetchSavedAddresses = async (userId: string) => {
+    try {
+      const { data } = await api.get(`/order/my-orders?userId=${userId}`);
+      if (data.success && data.orders) {
+        // Extract unique valid addresses from past orders
+        const addresses: any[] = [];
+        const seen = new Set();
+
+        data.orders.forEach((order: any) => {
+          if (order.shippingAddress && order.shippingAddress.street) {
+            const addrString = JSON.stringify(order.shippingAddress);
+            if (!seen.has(addrString)) {
+              seen.add(addrString);
+              addresses.push(order.shippingAddress);
+            }
+          }
+        });
+
+        setSavedAddresses(addresses);
+        if (addresses.length > 0) {
+          setSelectedAddress(addresses[0]); // Default to most recent
+        } else {
+          setIsAddingNew(true); // Default to add new if none exist
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch addresses");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePayment = async () => {
     try {
-      const shippingAddress = JSON.parse(sessionStorage.getItem("purchase_address") || "{}");
+      const shippingAddress = isAddingNew ? newAddress : selectedAddress;
       const beltCustomization = JSON.parse(sessionStorage.getItem("purchase_customization") || "null");
 
-      if (type === "QR_BELT" && !shippingAddress.street) {
-        setAlert({ message: "Shipping address missing. Going back.", type: "error" });
-        setTimeout(() => router.push(`/purchase/address?petId=${petId}&type=${type}`), 2000);
-        return;
+      // Validation
+      if (type === "QR_BELT") {
+        if (!shippingAddress || !shippingAddress.street || !shippingAddress.zip) {
+           setAlert({ message: "Please provide a valid shipping address.", type: "error" });
+           return;
+        }
       }
 
       setLoading(true);
@@ -81,7 +126,7 @@ export default function PaymentPage() {
           email: user.email,
           contact: user.mobile
         },
-        theme: { color: "#14b8a6" }, // Updated to match Tailwind teal-500
+        theme: { color: "#14b8a6" },
         modal: {
           ondismiss: function() {
             setLoading(false);
@@ -98,7 +143,6 @@ export default function PaymentPage() {
     }
   };
 
-  // Upgraded loader
   if (loading && !user) return (
     <div className="h-screen flex items-center justify-center bg-slate-50">
       <Loader2 className="animate-spin text-teal-500" size={48} strokeWidth={2.5} />
@@ -111,10 +155,9 @@ export default function PaymentPage() {
       <Navbar userName={user?.username} />
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
-      {/* Constrained to max-w-lg to match Address and Customization pages exactly */}
-      <main className="max-w-lg mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))] flex flex-col">
+      <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-10 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))] flex flex-col">
         
-        {/* Animated Header Section - matches previous steps */}
+        {/* Header */}
         <div className="mb-6 sm:mb-8 animate-in slide-in-from-left-8 fade-in duration-700 shrink-0">
           <button 
             onClick={() => router.back()} 
@@ -131,67 +174,137 @@ export default function PaymentPage() {
                <ShieldCheck className="text-white" size={20} strokeWidth={2.5} />
              </div>
              <h1 className="text-2xl sm:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-800 tracking-tight pb-1">
-               Secure Checkout
+               Checkout
              </h1>
           </div>
         </div>
 
-        {/* Payment Summary Card */}
-        <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-700 delay-150 fill-mode-both w-full text-center">
-          
-          {/* Subtle Decor Element */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-50 to-transparent rounded-bl-[3rem] opacity-60 pointer-events-none"></div>
+        <div className="grid grid-cols-1 gap-6">
 
-          <div className="space-y-6 sm:space-y-8 relative z-10">
-            
-            {/* Trust Indicator */}
-            <div className="flex justify-center">
-              <div className="bg-emerald-50 p-5 rounded-full border border-emerald-100 shadow-sm shadow-emerald-500/10">
-                <ShieldCheck size={48} className="text-emerald-500" strokeWidth={2} />
-              </div>
-            </div>
-            
-            <div className="space-y-2.5">
-              <h2 className="text-2xl font-black tracking-tight text-slate-900">Complete Payment</h2>
-              <p className="text-slate-500 font-medium text-sm sm:text-base max-w-sm mx-auto leading-relaxed">
-                Your transaction is secured with industry-standard encryption.
-              </p>
-            </div>
+          {/* 1. SHIPPING ADDRESS SECTION */}
+          {type === "QR_BELT" && (
+             <div className="bg-white rounded-[1.5rem] p-6 sm:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 animate-in slide-in-from-bottom-8 fade-in duration-700">
+                <div className="flex items-center gap-3 mb-6">
+                   <MapPin className="text-teal-500" size={20} />
+                   <h2 className="text-lg font-black text-slate-900">Shipping Address</h2>
+                </div>
 
-            {/* Receipt / Summary Box */}
-            <div className="bg-slate-50 p-5 sm:p-6 rounded-2xl border border-slate-200 text-left shadow-inner shadow-slate-100/50">
-              <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-200/60">
-                <span className="font-bold text-slate-400 uppercase text-[10px] sm:text-[11px] tracking-widest">Item Summary</span>
-                <span className="font-bold text-slate-700 text-sm">{type === "QR_BELT" ? "QR Tag + Premium Belt" : "QR Tag Only"}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-slate-400 uppercase text-[10px] sm:text-[11px] tracking-widest">Total Amount</span>
-                <span className="font-black text-3xl text-teal-600 tracking-tight">₹{type === "QR_BELT" ? "299" : "50"}</span>
-              </div>
-            </div>
+                {!isAddingNew && savedAddresses.length > 0 ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-3">
+                      {savedAddresses.map((addr, idx) => (
+                        <div 
+                          key={idx}
+                          onClick={() => setSelectedAddress(addr)}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-start justify-between group ${
+                            selectedAddress === addr 
+                              ? "border-teal-500 bg-teal-50/30 shadow-sm" 
+                              : "border-slate-100 hover:border-teal-200 bg-slate-50/50"
+                          }`}
+                        >
+                          <div>
+                             <p className="font-bold text-slate-800 text-sm">{addr.street}</p>
+                             <p className="text-xs text-slate-500 mt-0.5">{addr.city}, {addr.state} - {addr.zip}</p>
+                          </div>
+                          {selectedAddress === addr && <Check size={18} className="text-teal-600" />}
+                        </div>
+                      ))}
+                    </div>
 
-            {/* Main Action */}
-            <button 
-              onClick={handlePayment}
-              disabled={loading}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 sm:py-4.5 rounded-xl shadow-md shadow-slate-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100 flex items-center justify-center gap-2 group mt-2"
-            >
-              {loading ? (
-                <Loader2 className="animate-spin" size={20} />
-              ) : (
-                <>
-                  <CreditCard size={18} className="text-teal-400 group-hover:scale-110 transition-transform duration-300" /> 
-                  <span className="text-sm sm:text-base">Pay Now</span>
-                </>
-              )}
-            </button>
+                    <button 
+                      onClick={() => { setIsAddingNew(true); setSelectedAddress(null); }}
+                      className="text-xs font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1.5 px-1 py-2"
+                    >
+                      <Plus size={14} /> Add New Address
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Street Address</label>
+                      <input 
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold text-sm" 
+                        placeholder="Shop No, Building, Street" 
+                        value={newAddress.street}
+                        onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">City</label>
+                        <input 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold text-sm" 
+                          placeholder="City" 
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">State</label>
+                        <input 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold text-sm" 
+                          placeholder="State" 
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                       <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Pincode</label>
+                       <input 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold text-sm" 
+                          placeholder="6 digits" 
+                          maxLength={6}
+                          value={newAddress.zip}
+                          onChange={(e) => setNewAddress({...newAddress, zip: e.target.value})}
+                       />
+                    </div>
 
-            {/* Footer Trust Mark */}
-            <div className="flex items-center justify-center gap-2 pt-2 opacity-50">
-              <ShieldCheck size={14} className="text-slate-400" />
-              <p className="text-[9px] uppercase font-black tracking-widest text-slate-500">Secured by Razorpay</p>
-            </div>
+                    {savedAddresses.length > 0 && (
+                      <button 
+                        onClick={() => { setIsAddingNew(false); setSelectedAddress(savedAddresses[0]); }}
+                        className="text-xs font-bold text-slate-400 hover:text-slate-600 mt-2"
+                      >
+                        Cancel & Select Saved Address
+                      </button>
+                    )}
+                  </div>
+                )}
+             </div>
+          )}
+
+          {/* 2. PAYMENT SUMMARY */}
+          <div className="bg-white rounded-[1.5rem] p-6 sm:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-700 delay-100 fill-mode-both">
+             {/* Subtle Decor Element */}
+             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-50 to-transparent rounded-bl-[3rem] opacity-60 pointer-events-none"></div>
+
+             <div className="space-y-6 relative z-10 text-center">
+                <div className="flex justify-between items-center bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-inner">
+                  <span className="font-bold text-slate-500 text-xs sm:text-sm uppercase tracking-wide">Total to Pay</span>
+                  <span className="font-black text-3xl text-teal-600 tracking-tight">₹{type === "QR_BELT" ? "299" : "50"}</span>
+                </div>
+
+                <button 
+                  onClick={handlePayment}
+                  disabled={loading}
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-md shadow-slate-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2 group"
+                >
+                  {loading ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <>
+                      <CreditCard size={18} className="text-teal-400 group-hover:scale-110 transition-transform duration-300" /> 
+                      <span className="text-sm sm:text-base">Pay securely</span>
+                    </>
+                  )}
+                </button>
+                
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                  Secured by Razorpay • Cancellable before shipping
+                </p>
+             </div>
           </div>
+
         </div>
       </main>
     </div>

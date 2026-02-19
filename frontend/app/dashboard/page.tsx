@@ -152,7 +152,7 @@ export default function Dashboard() {
                   </button>
 
                   <button 
-                    onClick={() => router.push(`/purchase/address?petId=${pet._id}&type=QR_BELT`)}
+                    onClick={() => router.push(`/purchase/customization?petId=${pet._id}&type=QR_BELT`)}
                     className="flex flex-col items-center justify-center p-3 bg-slate-50 hover:bg-teal-500 border border-slate-100 hover:border-teal-500 rounded-2xl transition-all duration-300 group/btn active:scale-95"
                   >
                     <CreditCard size={18} className="text-slate-400 group-hover/btn:text-white mb-1.5 group-hover/btn:-translate-y-1 transition-all duration-300" />
