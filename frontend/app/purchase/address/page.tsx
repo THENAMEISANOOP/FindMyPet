@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, MapPin, Loader2 } from "lucide-react";
+import { ChevronLeft, MapPin, Loader2, ArrowRight } from "lucide-react";
 import Navbar from "@/app/components/Navbar";
 import CustomAlert from "@/app/components/CustomAlert";
 
@@ -45,59 +45,79 @@ export default function AddressPage() {
     }
   };
 
-  if (!petId || !type) return <div>Invalid request</div>;
+  if (!petId || !type) return (
+    <div className="h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-bold">
+      Invalid request parameters. Please return to the dashboard.
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-brand-beige text-brand-charcoal font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-teal-200">
       <CustomAlert message={alert.message} type={alert.type} onClose={() => setAlert({ ...alert, message: null })} />
       <Navbar userName={user?.username} />
 
-      <main className="max-w-2xl mx-auto p-6 py-12">
-        <button 
-          onClick={() => router.back()} 
-          className="flex items-center gap-2 text-brand-charcoal/50 hover:text-brand-teal transition-colors mb-8 font-bold text-sm uppercase tracking-wider group"
-        >
-          <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
-        </button>
-
-        <div className="bg-white rounded-[3rem] p-10 shadow-xl border border-brand-sand/40 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-teal/5 rounded-bl-[3rem]"></div>
-          
-          <div className="flex items-center gap-4 mb-8">
-            <div className="bg-brand-teal/10 p-3 rounded-2xl text-brand-teal">
-              <MapPin size={24} />
+      {/* Constrained to max-w-lg to perfectly match the Profile page's compact layout */}
+      <main className="max-w-lg mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))] flex flex-col">
+        
+        {/* Animated Header Section */}
+        <div className="mb-6 sm:mb-8 animate-in slide-in-from-left-8 fade-in duration-700 shrink-0">
+          <button 
+            onClick={() => router.back()} 
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-teal-600 transition-colors mb-4 font-bold text-[11px] sm:text-xs uppercase tracking-widest group"
+          >
+            <div className="bg-slate-200/50 p-1.5 rounded-full group-hover:bg-teal-100 transition-colors">
+              <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" strokeWidth={3} /> 
             </div>
-            <h1 className="text-3xl font-black tracking-tight">Delivery Address</h1>
+            Back to the dashboard
+          </button>
+          
+          <div className="flex items-center gap-3">
+             <div className="bg-teal-500 p-2 sm:p-2.5 rounded-xl shadow-sm shadow-teal-500/20 shrink-0">
+               <MapPin className="text-white" size={20} strokeWidth={2.5} />
+             </div>
+             <h1 className="text-2xl sm:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-800 tracking-tight pb-1">
+               Delivery Address
+             </h1>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-brand-charcoal/40 ml-2">Street Address</label>
+        {/* Address Form Card */}
+        <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-700 delay-150 fill-mode-both w-full">
+          
+          {/* Subtle Decor Element */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-50 to-transparent rounded-bl-[3rem] opacity-60 pointer-events-none"></div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 relative z-10">
+            
+            {/* Street Address */}
+            <div className="space-y-1.5">
+              <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">Street Address</label>
               <input 
                 required 
-                className="w-full p-5 bg-brand-beige border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:text-brand-charcoal/30" 
+                className="w-full px-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold placeholder:font-medium placeholder:text-slate-400 transition-all text-sm hover:border-slate-300 focus:bg-white" 
                 placeholder="Shop No, Building, Street" 
                 value={address.street}
                 onChange={(e) => setAddress({...address, street: e.target.value})}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-brand-charcoal/40 ml-2">City</label>
+            {/* City & State Grid */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">City</label>
                 <input 
                   required 
-                  className="w-full p-5 bg-brand-beige border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:text-brand-charcoal/30" 
+                  className="w-full px-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold placeholder:font-medium placeholder:text-slate-400 transition-all text-sm hover:border-slate-300 focus:bg-white" 
                   placeholder="City" 
                   value={address.city}
                   onChange={(e) => setAddress({...address, city: e.target.value})}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-brand-charcoal/40 ml-2">State</label>
+              <div className="space-y-1.5">
+                <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">State</label>
                 <input 
                   required 
-                  className="w-full p-5 bg-brand-beige border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:text-brand-charcoal/30" 
+                  className="w-full px-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold placeholder:font-medium placeholder:text-slate-400 transition-all text-sm hover:border-slate-300 focus:bg-white" 
                   placeholder="State" 
                   value={address.state}
                   onChange={(e) => setAddress({...address, state: e.target.value})}
@@ -105,11 +125,12 @@ export default function AddressPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-brand-charcoal/40 ml-2">Pincode</label>
+            {/* Pincode */}
+            <div className="space-y-1.5">
+              <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">Pincode</label>
               <input 
                 required 
-                className="w-full p-5 bg-brand-beige border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:text-brand-charcoal/30" 
+                className="w-full px-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold placeholder:font-medium placeholder:text-slate-400 transition-all text-sm hover:border-slate-300 focus:bg-white" 
                 placeholder="6 digits" 
                 value={address.zip}
                 maxLength={6}
@@ -117,11 +138,22 @@ export default function AddressPage() {
               />
             </div>
 
+            {/* Dynamic Submit Button */}
             <button 
               type="submit" 
-              className="w-full py-5 bg-brand-teal text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-teal-dark transition-all shadow-lg shadow-brand-teal/20 active:scale-95"
+              disabled={loading}
+              className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-md shadow-teal-500/25 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 mt-6 group"
             >
-              {type === "QR_BELT" ? "Next: Customization" : "Proceed to Payment"}
+              {loading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                <>
+                  <span className="text-sm sm:text-base">
+                    {type === "QR_BELT" ? "Next: Customization" : "Proceed to Payment"}
+                  </span>
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </>
+              )}
             </button>
           </form>
         </div>

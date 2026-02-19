@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import { Phone, MessageCircle, Mail, AlertTriangle, Loader2, Info } from "lucide-react";
 
 interface Pet {
   name: string;
@@ -42,18 +42,22 @@ export default function PublicScanPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="animate-pulse text-lg font-medium">Loading pet details…</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <Loader2 className="animate-spin text-teal-500 mb-4" size={48} strokeWidth={2.5} />
+        <p className="text-slate-500 font-bold animate-pulse text-sm uppercase tracking-widest">Locating Pet Details...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="bg-white shadow-lg rounded-xl p-6 text-center max-w-md w-full">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">Error</h2>
-          <p className="text-gray-600">{error}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white shadow-xl shadow-rose-500/10 border border-rose-100 rounded-[2rem] p-8 text-center max-w-md w-full">
+          <div className="bg-rose-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5">
+            <AlertTriangle className="text-rose-500" size={32} />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900 mb-2">Scan Error</h2>
+          <p className="text-slate-500 font-medium">{error}</p>
         </div>
       </div>
     );
@@ -62,57 +66,90 @@ export default function PublicScanPage() {
   if (!pet) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 selection:bg-teal-200">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/60 border border-slate-100 max-w-md w-full overflow-hidden relative"
       >
-        <div className="flex flex-col items-center">
-          <Image
-            src={pet.photo}
-            alt={pet.name}
-            width={120}
-            height={120}
-            className="rounded-full object-cover border"
-          />
+        {/* Decorative Header Background */}
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-br from-teal-500 via-emerald-400 to-teal-600"></div>
 
-          <h1 className="text-2xl font-bold mt-4">{pet.name}</h1>
-          <p className="text-gray-500">Age: {pet.age}</p>
+        <div className="flex flex-col items-center pt-16 px-6 pb-8 relative z-10">
+          
+          {/* Pet Avatar */}
+          <div className="relative w-32 h-32 rounded-full ring-4 ring-white shadow-xl bg-slate-50 overflow-hidden mb-5">
+            {pet.photo ? (
+               <img
+                 src={pet.photo}
+                 alt={pet.name}
+                 className="w-full h-full object-cover"
+               />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-teal-50 text-teal-200">
+                 <Info size={48} />
+              </div>
+            )}
+          </div>
 
-          <div className="mt-4 w-full text-center">
-            <p className="text-gray-600 font-medium">
-              Owner: {pet.ownerName}
+          {/* Pet Info */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">
+              {pet.name}
+            </h1>
+            <div className="inline-flex items-center justify-center px-4 py-1.5 bg-slate-100 rounded-full border border-slate-200">
+               <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                 Age: <span className="text-teal-600">{pet.age} Years</span>
+               </span>
+            </div>
+          </div>
+
+          {/* Owner Context Box */}
+          <div className="w-full bg-teal-50/50 border border-teal-100 p-4 rounded-2xl mb-6 text-center shadow-inner shadow-teal-100/50">
+            <p className="text-xs font-bold text-teal-800/60 uppercase tracking-widest mb-1">
+              Pet Owner
+            </p>
+            <p className="text-lg font-black text-teal-900">
+              {pet.ownerName}
+            </p>
+            <p className="text-sm font-medium text-teal-700/80 mt-1">
+              Please reach out immediately to help return this pet safely.
             </p>
           </div>
 
-          {/* ACTION BUTTONS */}
-          <div className="mt-6 grid grid-cols-1 gap-3 w-full">
-            {/* Call */}
+          {/* EMERGENCY ACTION BUTTONS */}
+          <div className="grid grid-cols-1 gap-3 w-full">
+            
+            {/* Call Action - Primary */}
             <a
               href={`tel:${pet.ownerMobile}`}
-              className="bg-green-600 text-white py-2 rounded-lg text-center font-semibold"
+              className="w-full bg-slate-900 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-95 group"
             >
-              📞 Call Owner
+              <Phone size={20} className="text-teal-400 group-hover:scale-110 transition-transform" />
+              <span>Call Owner</span>
             </a>
 
-            {/* WhatsApp */}
+            {/* WhatsApp Action */}
             <a
               href={`https://wa.me/91${pet.ownerWhatsapp}?text=Hi, I found your pet ${pet.name}`}
               target="_blank"
-              className="bg-emerald-500 text-white py-2 rounded-lg text-center font-semibold"
+              rel="noopener noreferrer"
+              className="w-full bg-[#25D366] text-white p-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-[#20bd5a] transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-95 group"
             >
-              💬 WhatsApp Owner
+              <MessageCircle size={20} className="group-hover:scale-110 transition-transform" />
+              <span>WhatsApp</span>
             </a>
 
-            {/* Email */}
+            {/* Email Action - Secondary */}
             <a
               href={`mailto:${pet.ownerEmail}?subject=Found your pet&body=Hi, I found your pet ${pet.name}`}
-              className="bg-indigo-600 text-white py-2 rounded-lg text-center font-semibold"
+              className="w-full bg-white border-2 border-slate-100 text-slate-600 p-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:border-slate-200 hover:bg-slate-50 transition-all active:scale-95 group"
             >
-              ✉️ Email Owner
+              <Mail size={20} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+              <span>Email Owner</span>
             </a>
+
           </div>
         </div>
       </motion.div>

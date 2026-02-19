@@ -65,63 +65,81 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-beige text-brand-charcoal font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-teal-200">
       <CustomAlert message={alert.message} type={alert.type} onClose={() => setAlert({ ...alert, message: null })} />
       <Navbar userName={formData.username} />
 
-      <main className="max-w-2xl mx-auto p-6 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))]">
-        <div className="my-10">
-          <Link href="/dashboard" className="inline-flex items-center gap-2 text-brand-charcoal/50 hover:text-brand-teal transition-colors mb-6 font-bold text-sm uppercase tracking-wider group">
-            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
+      <main className="max-w-lg mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))] flex flex-col">
+        
+        {/* Animated Header Section */}
+        <div className="mb-6 sm:mb-8 animate-in slide-in-from-left-8 fade-in duration-700 shrink-0">
+          <Link 
+            href="/dashboard" 
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-teal-600 transition-colors mb-4 font-bold text-[11px] sm:text-xs uppercase tracking-widest group"
+          >
+            <div className="bg-slate-200/50 p-1.5 rounded-full group-hover:bg-teal-100 transition-colors">
+              <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" strokeWidth={3} /> 
+            </div>
+            Back to Dashboard
           </Link>
-          <h1 className="text-4xl font-black text-brand-charcoal tracking-tight flex items-center gap-3">
-             <User className="text-brand-teal" size={32} />
-             Edit Profile
-          </h1>
+          
+          {/* Upgraded Gradient Heading Layout */}
+          <div className="flex items-center gap-3">
+             <div className="bg-teal-500 p-2 sm:p-2.5 rounded-xl shadow-sm shadow-teal-500/20 shrink-0">
+               <User className="text-white" size={20} strokeWidth={2.5} />
+             </div>
+             <h1 className="text-3xl sm:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-800 tracking-tight pb-1">
+               Edit Profile
+             </h1>
+          </div>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] p-10 border border-brand-sand/50 shadow-xl shadow-brand-sand/10 relative overflow-hidden">
-          {/* Decor */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-teal/5 rounded-bl-[3rem]"></div>
+        {/* Profile Form Card */}
+        <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-700 delay-150 fill-mode-both w-full">
+          
+          {/* Subtle Decor Element */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-50 to-transparent rounded-bl-[3rem] opacity-60 pointer-events-none"></div>
 
+          {/* Feedback Messages */}
           {success && (
-            <div className="mb-8 p-4 bg-brand-lime/20 text-brand-charcoal rounded-2xl border border-brand-lime/30 font-bold text-center flex items-center justify-center gap-2 shadow-sm">
-              <span className="text-xl">🎉</span> {success}
+            <div className="mb-6 p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 font-bold text-sm text-center flex items-center justify-center gap-2 shadow-sm animate-in zoom-in-95 fade-in duration-300">
+              <span className="text-lg">🎉</span> {success}
             </div>
           )}
           
           {error && (
-            <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 font-bold text-center">
+            <div className="mb-6 p-3 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 font-bold text-sm text-center animate-in zoom-in-95 fade-in duration-300">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
-             {/* Email (Read Only) */}
-             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">Email Address</label>
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 relative z-10">
+            
+            {/* Email (Read Only) */}
+            <div>
+              <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 ml-1">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30" size={20} />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input 
                   type="email"
                   value={formData.email}
                   readOnly
-                  className="w-full pl-12 pr-4 py-4 bg-brand-beige/50 border border-brand-sand/50 rounded-2xl text-brand-charcoal/60 font-bold cursor-not-allowed"
+                  className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-500 font-bold cursor-not-allowed transition-all text-sm shadow-inner shadow-slate-100/50"
                 />
               </div>
-              <p className="text-[10px] font-bold text-brand-charcoal/30 mt-2 ml-1 uppercase tracking-wide">Cannot be changed</p>
+              <p className="text-[9px] font-bold text-slate-400 mt-1.5 ml-1 uppercase tracking-widest">Cannot be changed</p>
             </div>
 
             {/* Username */}
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">Full Name</label>
+              <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 ml-1">Full Name</label>
               <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30 group-focus-within:text-brand-teal transition-colors" size={20} />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors duration-300" size={18} />
                 <input 
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-4 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:font-medium placeholder:text-brand-charcoal/20 transition-all"
+                  className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold placeholder:font-medium placeholder:text-slate-400 transition-all text-sm hover:border-slate-300 focus:bg-white"
                   placeholder="Your Name"
                   required
                 />
@@ -130,14 +148,14 @@ export default function ProfilePage() {
 
             {/* Mobile */}
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">Mobile Number</label>
+              <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 ml-1">Mobile Number</label>
               <div className="relative group">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30 group-focus-within:text-brand-teal transition-colors" size={20} />
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors duration-300" size={18} />
                 <input 
                   name="mobile"
                   value={formData.mobile}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-4 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:font-medium placeholder:text-brand-charcoal/20 transition-all"
+                  className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold placeholder:font-medium placeholder:text-slate-400 transition-all text-sm hover:border-slate-300 focus:bg-white"
                   placeholder="Mobile Number"
                   required
                 />
@@ -146,14 +164,14 @@ export default function ProfilePage() {
 
             {/* WhatsApp */}
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-brand-charcoal/40 mb-3 ml-1">WhatsApp Number</label>
+              <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 ml-1">WhatsApp Number</label>
               <div className="relative group">
-                <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-charcoal/30 group-focus-within:text-brand-teal transition-colors" size={20} />
+                <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors duration-300" size={18} />
                 <input 
                   name="whatsapp"
                   value={formData.whatsapp}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-4 bg-white border border-brand-sand/50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-teal text-brand-charcoal font-bold placeholder:font-medium placeholder:text-brand-charcoal/20 transition-all"
+                  className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 text-slate-900 font-bold placeholder:font-medium placeholder:text-slate-400 transition-all text-sm hover:border-slate-300 focus:bg-white"
                   placeholder="WhatsApp Number"
                   required
                 />
@@ -162,9 +180,16 @@ export default function ProfilePage() {
 
             <button 
               disabled={loading}
-              className="w-full bg-brand-teal hover:bg-brand-teal-dark text-white font-bold py-5 rounded-2xl shadow-xl shadow-brand-teal/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 mt-4 group"
+              className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-md shadow-teal-500/25 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100 flex items-center justify-center gap-2 mt-6 group"
             >
-              {loading ? <Loader2 className="animate-spin" /> : <><Save size={20} className="group-hover:scale-110 transition-transform" /> Save Changes</>}
+              {loading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                <>
+                  <Save size={18} className="group-hover:scale-110 transition-transform duration-300" /> 
+                  <span className="text-sm sm:text-base">Save Changes</span>
+                </>
+              )}
             </button>
           </form>
         </div>
