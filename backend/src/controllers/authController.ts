@@ -1,16 +1,20 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import User from "../models/User.model";
 import { sendEmail } from "../utils/sendEmail";
 
 // Check if email exists
-export const checkEmail = async (req: Request, res: Response) => {
-  const { email } = req.body;
-  const user = await User.findOne({ email });
-  res.json({ exists: !!user });
+export const checkEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email }).lean();
+    res.json({ exists: !!user });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Register new user
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   const { username, email, mobile, whatsapp } = req.body;
 
   try {
@@ -27,17 +31,17 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: "Invalid WhatsApp number" });
 
     // Check email uniqueness
-    const existingEmail = await User.findOne({ email });
+    const existingEmail = await User.findOne({ email }).lean();
     if (existingEmail)
       return res.status(400).json({ success: false, message: "Email already exists" });
 
     // Check WhatsApp uniqueness
-    const existingWhatsapp = await User.findOne({ whatsapp });
+    const existingWhatsapp = await User.findOne({ whatsapp }).lean();
     if (existingWhatsapp)
       return res.status(400).json({ success: false, message: "WhatsApp number already exists" });
 
     // Check mobile uniqueness
-    const existingMobile = await User.findOne({ mobile });
+    const existingMobile = await User.findOne({ mobile }).lean();
     if (existingMobile)
       return res.status(400).json({ success: false, message: "Mobile number already exists" });
 
@@ -46,14 +50,14 @@ export const registerUser = async (req: Request, res: Response) => {
 
     res.json({ success: true, message: "User registered successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error });
+    next(error);
   }
 };
 
 
 
 // Send login OTP
-export const sendLoginOTP = async (req: Request, res: Response) => {
+export const sendLoginOTP = async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -68,14 +72,14 @@ export const sendLoginOTP = async (req: Request, res: Response) => {
     await sendEmail(email, "FindMyPet OTP", `Your OTP is: ${otp}`);
     res.status(200).json({ message: "OTP sent to email" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    next(error);
   }
 };
 
 
 
 // Verify OTP
-export const verifyOTP = async (req: Request, res: Response) => {
+export const verifyOTP = async (req: Request, res: Response, next: NextFunction) => {
   const { email, otp } = req.body;
 
   try {
@@ -111,12 +115,12 @@ export const verifyOTP = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    next(error);
   }
 };
 
 // Update User Profile
-export const updateProfile = async (req: Request, res: Response) => {
+export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
   const { email, username, mobile, whatsapp } = req.body;
 
   try {
@@ -142,7 +146,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error });
+    next(error);
   }
 };
 

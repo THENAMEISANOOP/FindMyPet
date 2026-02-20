@@ -52,4 +52,7 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+orderSchema.index({ userId: 1 });
+orderSchema.index({ petId: 1 });
+
 export default mongoose.model("Order", orderSchema);

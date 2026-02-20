@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 import Order from "../models/Order";
 import User from "../models/User.model";
@@ -9,10 +9,7 @@ import { sendEmail } from "../utils/sendEmail";
 import { getOrderConfirmationEmail } from "../utils/emailTemplates";
 import QRCode from "qrcode";
 
-
-//create
-
-export const createOrder = async (req: Request, res: Response) => {
+export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId, petId, type, shippingAddress, beltCustomization } = req.body;
 
@@ -35,12 +32,12 @@ export const createOrder = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid order type" });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).lean();
     if (!user || !user.isVerified) {
       return res.status(404).json({ message: "User not verified" });
     }
 
-    const pet = await Pet.findOne({ _id: petId, userId });
+    const pet = await Pet.findOne({ _id: petId, userId }).lean();
     if (!pet) {
       return res.status(404).json({ message: "Pet not found" });
     }
@@ -78,16 +75,14 @@ export const createOrder = async (req: Request, res: Response) => {
       order
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Order creation failed" });
+    next(error);
   }
 };
-
 
 /**
  * ✅ GET MY ORDERS
  */
-export const getMyOrders = async (req: Request, res: Response) => {
+export const getMyOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = req.query as { userId?: string };
 
@@ -97,7 +92,7 @@ export const getMyOrders = async (req: Request, res: Response) => {
     }
 
     // 2️⃣ Validate user
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).lean();
     if (!user || !user.isVerified) {
       return res
         .status(404)
@@ -107,7 +102,8 @@ export const getMyOrders = async (req: Request, res: Response) => {
     // 3️⃣ Fetch orders
     const orders = await Order.find({ userId: user._id })
       .populate("petId", "name photo qrCode")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json({
       success: true,
@@ -120,13 +116,12 @@ export const getMyOrders = async (req: Request, res: Response) => {
       orders
     });
   } catch (error) {
-    console.error("Get orders error:", error);
-    res.status(500).json({ message: "Failed to fetch orders" });
+    next(error);
   }
 };
 
 
-export const verifyPayment = async (req: Request, res: Response) => {
+export const verifyPayment = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       razorpay_order_id,
@@ -155,7 +150,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
     order.razorpayPaymentId = razorpay_payment_id;
     await order.save();
 
-    // 🏆 GENERATE QR CODE for the pet
+    // 🏆 GENERATE QR CODE for the pet (doing this background-like, but next(error) if critical)
     try {
       const pet = await Pet.findById(order.petId);
       if (pet) {
@@ -171,7 +166,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
 
     // --- NOTIFICATIONS ---
     try {
-      const user = await User.findById(order.userId);
+      const user = await User.findById(order.userId).lean();
       if (user) {
         // 1. Send Email
         const emailContent = getOrderConfirmationEmail(user.username, {
@@ -188,7 +183,6 @@ export const verifyPayment = async (req: Request, res: Response) => {
       }
     } catch (notifyError) {
       console.error("Notification failed:", notifyError);
-      // Don't fail the request if notification fails
     }
 
     res.json({
@@ -196,6 +190,6 @@ export const verifyPayment = async (req: Request, res: Response) => {
       message: "Payment verified successfully"
     });
   } catch (error) {
-    res.status(500).json({ message: "Payment verification failed" });
+    next(error);
   }
 };

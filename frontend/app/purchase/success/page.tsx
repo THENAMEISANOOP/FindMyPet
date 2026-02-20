@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, Download, Home, ShoppingBag, Loader2 } from "lucide-react";
 import api from "@/app/lib/api";
 import Navbar from "@/app/components/Navbar";
 import CustomAlert from "@/app/components/CustomAlert";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const petId = searchParams.get("petId");
@@ -76,9 +76,6 @@ export default function SuccessPage() {
           <div className="flex justify-center mb-5 sm:mb-6">
             <div className="bg-emerald-50 p-4 rounded-full text-emerald-500 relative shadow-sm shadow-emerald-500/20 border border-emerald-100 animate-in zoom-in-50 duration-500 delay-150">
               <CheckCircle size={48} strokeWidth={2} />
-              {/* <div className="absolute -top-1 -right-1 bg-white p-1.5 rounded-full shadow-md animate-bounce">
-                 <span className="text-lg leading-none">🎉</span>
-              </div> */}
             </div>
           </div>
 
@@ -169,5 +166,17 @@ export default function SuccessPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-teal-500" size={48} strokeWidth={2.5} />
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }

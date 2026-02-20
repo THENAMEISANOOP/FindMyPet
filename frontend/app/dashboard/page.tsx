@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Plus, PawPrint, QrCode, Loader2, Camera, ShoppingBag, CreditCard } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Plus, Loader2, Camera } from "lucide-react";
 import api from "../lib/api";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import CustomAlert from "@/app/components/CustomAlert";
+import PetCard from "@/app/components/PetCard";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -17,26 +18,7 @@ export default function Dashboard() {
   const [uploading, setUploading] = useState(false);
   const [petData, setPetData] = useState({ name: "", age: "", photo: null as File | null });
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      fetchPets(parsedUser._id);
-    }
-    setLoading(false);
-  }, []);
-
-  const checkAuth = () => {
-    if (!user) {
-      setAlert({ message: "Please login to access this feature", type: "info" });
-      setTimeout(() => router.push("/auth"), 1500);
-      return false;
-    }
-    return true;
-  };
-
-  const fetchPets = async (userId: string) => {
+  const fetchPets = useCallback(async (userId: string) => {
     try {
       const { data } = await api.get(`/pet/my-pets?userId=${userId}`);
       setPets(data.pets);
@@ -45,7 +27,27 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      fetchPets(parsedUser._id);
+    } else {
+      setLoading(false);
+    }
+  }, [fetchPets]);
+
+  const checkAuth = useCallback(() => {
+    if (!user) {
+      setAlert({ message: "Please login to access this feature", type: "info" });
+      setTimeout(() => router.push("/auth"), 1500);
+      return false;
+    }
+    return true;
+  }, [user, router]);
 
   const handleCreatePet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +73,14 @@ export default function Dashboard() {
       setUploading(false);
     }
   };
+
+  const onBuyTag = useCallback((petId: string) => {
+    router.push(`/purchase/payment?petId=${petId}&type=QR_ONLY`);
+  }, [router]);
+
+  const onBuyBelt = useCallback((petId: string) => {
+    router.push(`/purchase/customization?petId=${petId}&type=QR_BELT`);
+  }, [router]);
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-slate-50">
@@ -111,57 +121,13 @@ export default function Dashboard() {
         {/* Upgraded & Resized Pet Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {pets.map((pet: any, index: number) => (
-            <div 
-              key={pet._id} 
-              className="bg-white p-2.5 rounded-[1.5rem] border border-slate-100 shadow-md shadow-slate-200/50 hover:shadow-xl hover:shadow-teal-500/15 hover:-translate-y-1.5 transition-all duration-500 group relative animate-in slide-in-from-bottom-12 fade-in fill-mode-both flex flex-col"
-              style={{ animationDelay: `${index * 120}ms` }}
-            >
-              
-              {/* Pet Image Container - Reduced height & fixed object-contain */}
-              <div className="relative h-48 w-full rounded-[1rem] overflow-hidden bg-slate-50 border border-slate-100/50 flex items-center justify-center p-2 shrink-0">
-                {pet.photo ? (
-                  <img 
-                    src={pet.photo} 
-                    alt={pet.name} 
-                    className="w-full h-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-700 ease-out" 
-                  />
-                ) : (
-                  <PawPrint size={48} className="text-slate-200 group-hover:text-teal-500/20 group-hover:scale-110 transition-all duration-500" />
-                )}
-
-                {/* Floating Age Badge */}
-                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xl px-3 py-1 rounded-full shadow-sm border border-slate-100">
-                  <p className="text-[10px] font-black text-teal-600 uppercase tracking-widest">{pet.age} YRS</p>
-                </div>
-              </div>
-              
-              {/* Pet Details & Dynamic Actions - Reduced padding */}
-              <div className="px-3 pt-5 pb-2 flex-1 flex flex-col">
-                <h3 className="text-2xl font-black text-slate-900 mb-5 group-hover:text-teal-600 transition-colors duration-300 tracking-tight line-clamp-1">
-                  {pet.name}
-                </h3>
-                
-                <div className="grid grid-cols-2 gap-2.5 mt-auto">
-                  <button 
-                    onClick={() => router.push(`/purchase/payment?petId=${pet._id}&type=QR_ONLY`)}
-                    className="flex flex-col items-center justify-center p-3 bg-slate-50 hover:bg-teal-500 border border-slate-100 hover:border-teal-500 rounded-2xl transition-all duration-300 group/btn active:scale-95"
-                  >
-                    <ShoppingBag size={18} className="text-slate-400 group-hover/btn:text-white mb-1.5 group-hover/btn:-translate-y-1 transition-all duration-300" />
-                    <span className="text-[9px] font-bold text-slate-500 group-hover/btn:text-teal-100 uppercase tracking-widest mb-0.5">QR Tag</span>
-                    <span className="text-sm font-black text-slate-800 group-hover/btn:text-white">₹50</span>
-                  </button>
-
-                  <button 
-                    onClick={() => router.push(`/purchase/customization?petId=${pet._id}&type=QR_BELT`)}
-                    className="flex flex-col items-center justify-center p-3 bg-slate-50 hover:bg-teal-500 border border-slate-100 hover:border-teal-500 rounded-2xl transition-all duration-300 group/btn active:scale-95"
-                  >
-                    <CreditCard size={18} className="text-slate-400 group-hover/btn:text-white mb-1.5 group-hover/btn:-translate-y-1 transition-all duration-300" />
-                    <span className="text-[9px] font-bold text-slate-500 group-hover/btn:text-teal-100 uppercase tracking-widest mb-0.5">Belt</span>
-                    <span className="text-sm font-black text-slate-800 group-hover/btn:text-white">₹299</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <PetCard 
+              key={pet._id}
+              pet={pet}
+              index={index}
+              onBuyTag={onBuyTag}
+              onBuyBelt={onBuyBelt}
+            />
           ))}
           
           {/* Animated Empty State */}

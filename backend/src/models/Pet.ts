@@ -19,4 +19,6 @@ const petSchema = new mongoose.Schema({
   qrCode: String
 }, { timestamps: true });
 
+petSchema.index({ userId: 1 });
+
 export default mongoose.model("Pet", petSchema);

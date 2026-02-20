@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Loader2, ShoppingBag, Package, CheckCircle2, Clock, Truck, ChevronLeft, CreditCard, Download } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Loader2, ShoppingBag, Package, CheckCircle2, Clock, Truck, ChevronLeft, CreditCard } from "lucide-react";
 import api from "../lib/api";
 import Navbar from "../components/Navbar";
 import CustomAlert from "../components/CustomAlert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import OrderCard from "../components/OrderCard";
 
 export default function MyOrders() {
   const router = useRouter();
@@ -13,6 +14,17 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [alert, setAlert] = useState<{ message: string | null; type: "success" | "error" | "info" }>({ message: null, type: "info" });
+
+  const fetchOrders = useCallback(async (userId: string) => {
+    try {
+      const { data } = await api.get(`/order/my-orders?userId=${userId}`);
+      if (data.success) setOrders(data.orders);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -24,20 +36,9 @@ export default function MyOrders() {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
     fetchOrders(parsedUser._id);
-  }, [router]);
+  }, [router, fetchOrders]);
 
-  const fetchOrders = async (userId: string) => {
-    try {
-      const { data } = await api.get(`/order/my-orders?userId=${userId}`);
-      if (data.success) setOrders(data.orders);
-    } catch (err) {
-      console.error("Error fetching orders:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const downloadQR = (order: any) => {
+  const downloadQR = useCallback((order: any) => {
     if (!order.petId?.qrCode) return;
     const link = document.createElement("a");
     link.href = order.petId.qrCode;
@@ -45,10 +46,10 @@ export default function MyOrders() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+  }, []);
 
   // --- REPAYMENT LOGIC ---
-  const handleRepay = async (order: any) => {
+  const handleRepay = useCallback(async (order: any) => {
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
       amount: order.amount * 100, 
@@ -67,23 +68,23 @@ export default function MyOrders() {
 
           if (verifyRes.data.success) {
             setAlert({ message: "🎉 Payment Successful!", type: "success" });
-            fetchOrders(user._id); 
+            if (user?._id) fetchOrders(user._id); 
           }
         } catch (err) {
           setAlert({ message: "Verification failed.", type: "error" });
         }
       },
       prefill: {
-        name: user.username,
-        email: user.email,
-        contact: user.mobile
+        name: user?.username,
+        email: user?.email,
+        contact: user?.mobile
       },
-      theme: { color: "#14b8a6" } // Updated Razorpay theme to match your Tailwind teal
+      theme: { color: "#14b8a6" }
     };
 
     const rzp = new (window as any).Razorpay(options);
     rzp.open();
-  };
+  }, [user, fetchOrders]);
 
   // Upgraded dynamic styling helpers for statuses
   const getStatusIcon = (status: string) => {
@@ -151,85 +152,15 @@ export default function MyOrders() {
 
           {/* Upgraded Order Cards Loop */}
           {orders.map((order: any, index: number) => (
-            <div 
-              key={order._id} 
-              className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-7 border border-slate-100 shadow-lg shadow-slate-200/40 hover:shadow-xl hover:shadow-teal-500/10 hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6 sm:gap-8 group animate-in slide-in-from-bottom-12 fade-in fill-mode-both"
-              style={{ animationDelay: `${index * 120}ms` }}
-            >
-              
-              <div className="flex items-start sm:items-center gap-4 sm:gap-6">
-                
-                {/* Pet Image / Icon Container */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-50 rounded-[1rem] sm:rounded-[1.25rem] p-2 flex-shrink-0 border border-slate-100 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                  {order.petId?.photo ? (
-                    <img src={order.petId.photo} className="w-full h-full object-contain drop-shadow-sm" alt="Pet" />
-                  ) : (
-                    <Package size={36} className="text-slate-300 group-hover:text-teal-500/30 transition-colors" />
-                  )}
-                </div>
-                
-                <div>
-                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 mb-1 tracking-tight">
-                    {order.type.replace("_", " ")}
-                  </h4>
-                  <p className="text-slate-500 font-medium text-[13px] sm:text-sm">
-                    For Pet: <span className="text-teal-600 font-bold ml-1">{order.petId?.name}</span>
-                  </p>
-                  
-                  {order.type === "QR_BELT" && order.beltCustomization && (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                       <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-slate-100 border border-slate-200/60 px-2.5 py-1 rounded-lg text-slate-500">
-                        Color: {order.beltCustomization.color}
-                       </span>
-                       <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-slate-100 border border-slate-200/60 px-2.5 py-1 rounded-lg text-slate-500">
-                        Style: {order.beltCustomization.style}
-                       </span>
-                    </div>
-                  )}
-                  <p className="text-slate-400 text-[10px] font-bold mt-3 sm:mt-4 uppercase tracking-widest">
-                    ID: {order._id.slice(-6)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Price, Status & Actions Segment */}
-              <div className="flex flex-col md:items-end gap-4 border-t md:border-t-0 border-slate-100 pt-5 md:pt-0 shrink-0">
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto">
-                  <p className="text-2xl sm:text-3xl font-black text-slate-900">₹{order.amount}</p>
-                  
-                  {/* Dynamic Status Pill */}
-                  <div className={`flex items-center gap-1.5 mt-1 sm:mt-2 font-bold text-[10px] sm:text-xs uppercase tracking-widest px-3 py-1.5 rounded-full border ${getStatusStyles(order.status)}`}>
-                    {getStatusIcon(order.status)}
-                    <span>{order.status}</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2.5 w-full md:w-auto mt-2 md:mt-0">
-                  {/* --- THE REPAYMENT BUTTON --- */}
-                  {order.status === "CREATED" && (
-                    <button 
-                      onClick={() => handleRepay(order)}
-                      className="w-full md:w-auto bg-slate-900 text-white px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-slate-800 transition-all shadow-md active:scale-95 group/btn"
-                    >
-                      <CreditCard size={18} className="text-teal-400 group-hover/btn:scale-110 transition-transform" /> 
-                      Pay Now
-                    </button>
-                  )}
-
-                  {/* --- DOWNLOAD QR BUTTON --- */}
-                  {order.status === "PAID" && order.petId?.qrCode && (
-                    <button 
-                      onClick={() => downloadQR(order)}
-                      className="w-full md:w-auto bg-teal-500 text-white px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-teal-600 transition-all shadow-md shadow-teal-500/25 active:scale-95 group/btn"
-                    >
-                      <Download size={18} className="group-hover/btn:-translate-y-0.5 transition-transform" /> 
-                      Download QR
-                    </button>
-                  )}
-                </div>
-              </div>
-
-            </div>
+            <OrderCard 
+              key={order._id}
+              order={order}
+              index={index}
+              getStatusIcon={getStatusIcon}
+              getStatusStyles={getStatusStyles}
+              onRepay={handleRepay}
+              onDownloadQR={downloadQR}
+            />
           ))}
         </div>
       </main>

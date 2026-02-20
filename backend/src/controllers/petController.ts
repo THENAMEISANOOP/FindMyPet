@@ -1,14 +1,13 @@
+import { Request, Response, NextFunction } from "express";
 import Pet from "../models/Pet";
 import User from "../models/User.model";
 import cloudinary from "../utils/cloudinary";
-import QRCode from "qrcode";
 
-
-export const createPet = async (req: any, res: any) => {
+export const createPet = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId, name, age } = req.body;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).lean();
     if (!user || !user.isVerified) {
       return res.status(404).json({ message: "User not found or not verified" });
     }
@@ -38,15 +37,14 @@ export const createPet = async (req: any, res: any) => {
       pet
     });
   } catch (error) {
-    console.error("Pet creation error:", error);
-    res.status(500).json({ message: "Pet creation failed", error: error instanceof Error ? error.message : "Unknown error" });
+    next(error);
   }
 };
 
 /**
  * ✅ GET MY PETS (AUTO owner data included)
  */
-export const getMyPets = async (req: any, res: any) => {
+export const getMyPets = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = req.query;
 
@@ -54,12 +52,12 @@ export const getMyPets = async (req: any, res: any) => {
       return res.status(400).json({ message: "userId is required" });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).lean();
     if (!user || !user.isVerified) {
       return res.status(404).json({ message: "User not found or not verified" });
     }
 
-    const pets = await Pet.find({ userId: user._id }).sort({ createdAt: -1 });
+    const pets = await Pet.find({ userId: user._id }).sort({ createdAt: -1 }).lean();
 
     res.json({
       success: true,
@@ -72,6 +70,6 @@ export const getMyPets = async (req: any, res: any) => {
       pets
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch pets" });
+    next(error);
   }
 };

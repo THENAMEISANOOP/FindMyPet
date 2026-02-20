@@ -1,16 +1,16 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, Palette, Check, ArrowRight } from "lucide-react";
+import { ChevronLeft, Palette, Check, ArrowRight, Loader2 } from "lucide-react";
 import Navbar from "@/app/components/Navbar";
 import CustomAlert from "@/app/components/CustomAlert";
 
 const COLORS = [
-  { name: "Midnight Black", value: "#0F172A" }, // Slightly softened black for better UI blending
+  { name: "Midnight Black", value: "#0F172A" }, 
   { name: "Classic Tan", value: "#C19A6B" },
-  { name: "Royal Blue", value: "#1E3A8A" }, // Swapped to a richer Tailwind Blue-900
-  { name: "Forest Green", value: "#065F46" }, // Swapped to a richer Tailwind Emerald-800
-  { name: "Ruby Red", value: "#9F1239" } // Swapped to a richer Tailwind Rose-800
+  { name: "Royal Blue", value: "#1E3A8A" }, 
+  { name: "Forest Green", value: "#065F46" }, 
+  { name: "Ruby Red", value: "#9F1239" } 
 ];
 
 const STYLES = [
@@ -19,7 +19,7 @@ const STYLES = [
   { name: "Reflective Pro", id: "reflective" }
 ];
 
-export default function CustomizationPage() {
+function CustomizationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const petId = searchParams.get("petId");
@@ -62,9 +62,7 @@ export default function CustomizationPage() {
       <CustomAlert message={alert.message} type={alert.type} onClose={() => setAlert({ ...alert, message: null })} />
       <Navbar userName={user?.username} />
 
-      {/* Constrained to max-w-lg to perfectly match the previous checkout step */}
       <main className="max-w-lg mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 min-h-[calc(100vh-theme(spacing.20)-theme(spacing.64))] flex flex-col">
-        
         {/* Animated Header Section */}
         <div className="mb-6 sm:mb-8 animate-in slide-in-from-left-8 fade-in duration-700 shrink-0">
           <button 
@@ -87,15 +85,10 @@ export default function CustomizationPage() {
           </div>
         </div>
 
-        {/* Customization Form Card */}
         <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-700 delay-150 fill-mode-both w-full">
-          
-          {/* Subtle Decor Element */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-50 to-transparent rounded-bl-[3rem] opacity-60 pointer-events-none"></div>
 
           <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10 relative z-10">
-            
-            {/* Color Selection Segment */}
             <div className="space-y-3.5">
               <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-400 ml-1">
                 Choose Color
@@ -130,7 +123,6 @@ export default function CustomizationPage() {
               </p>
             </div>
 
-            {/* Style Selection Segment */}
             <div className="space-y-3.5">
               <label className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-400 ml-1">
                 Choose Style
@@ -167,7 +159,6 @@ export default function CustomizationPage() {
               </div>
             </div>
 
-            {/* Dynamic Submit Button */}
             <button 
               type="submit" 
               className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-md shadow-teal-500/25 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 mt-8 group"
@@ -179,5 +170,17 @@ export default function CustomizationPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function CustomizationPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-teal-500" size={48} strokeWidth={2.5} />
+      </div>
+    }>
+      <CustomizationContent />
+    </Suspense>
   );
 }

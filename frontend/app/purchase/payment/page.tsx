@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, ShieldCheck, CreditCard, ChevronLeft, MapPin, Plus, Check } from "lucide-react";
 import api from "@/app/lib/api";
@@ -7,7 +7,7 @@ import Navbar from "@/app/components/Navbar";
 import CustomAlert from "@/app/components/CustomAlert";
 import Script from "next/script";
 
-export default function PaymentPage() {
+function PaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const petId = searchParams.get("petId");
@@ -308,5 +308,17 @@ export default function PaymentPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-teal-500" size={48} strokeWidth={2.5} />
+      </div>
+    }>
+      <PaymentContent />
+    </Suspense>
   );
 }
